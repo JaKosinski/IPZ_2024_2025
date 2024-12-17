@@ -56,6 +56,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  Map<String, String> _users = {};
+
+  final TextEditingController _textController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   void _incrementCounter() {
     setState(() {
@@ -104,6 +108,8 @@ class _MyHomePageState extends State<MyHomePage> {
   
   @override
   Widget build(BuildContext context) {
+    String login = "";
+    String password = "";
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -120,6 +126,41 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            const Text(
+              'Zaloguj się do aplikacji',
+              style: TextStyle(
+                fontSize: 50.0,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 5.0),
+              child: TextField(
+                controller: _textController, // Connect the controlle
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Login',
+                ),
+                onSubmitted: (value) {
+                  login = value;
+                  print(value);
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 5.0),
+              child: TextField(
+                controller: _passwordController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Hasło',
+                ),
+                onSubmitted: (value) {
+                  password = value;
+                  print(value);
+                }
+              )
+            ),
             ElevatedButton(
               onPressed: _showResetDialog, 
               child: const Text('Resetuj licznik'))
@@ -128,10 +169,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        tooltip: 'Wymasuj',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
-    
+      
     );
   }
 }
