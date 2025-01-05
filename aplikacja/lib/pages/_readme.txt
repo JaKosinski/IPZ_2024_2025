@@ -1,0 +1,1 @@
+W tym folderze tworze pliki, które przechowują strony (np. logowania, główną)
