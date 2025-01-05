@@ -63,9 +63,15 @@ class _SignInPageState extends State<SignInPage> {
                     }
                 )
             ),
-            ElevatedButton(
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: ElevatedButton(
                 onPressed: _signIn,
-                child: const Text('Zaloguj')
+                child: const Text(
+                  'Zaloguj',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+              ),
             ),
           ],
         ),
