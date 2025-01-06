@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
+import '../models/event.dart';
 
 class SignInPage extends StatefulWidget {
-  const SignInPage({Key? key}) : super(key: key);
+  final List<Event> events; // to chyba nie powinno być final, ale dla sprawdzenia rolek będzie
+
+  const SignInPage({Key? key, required this.events}) : super(key: key);
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -16,7 +19,9 @@ class _SignInPageState extends State<SignInPage> {
     // TODO logika autoryzacji; narazie tylko przekierowanie do homepage
     Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage())
+        MaterialPageRoute(
+            builder: (context) => HomePage(events: widget.events),
+        ),
     );
   }
 

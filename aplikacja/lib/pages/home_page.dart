@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
+import '../models/event.dart';
+import '../widgets/event_card.dart';
 
 // narazie bez state, chce tylko zaszkicować
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final List<Event> events;
+
+  const HomePage({Key? key, required this.events}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Strona główna'),
+        title: const Text('Strona Główna'),
       ),
-      body: const Center(
-        child: Text(
-          'Lorem Ipsum Strona Gówna',
-          style: TextStyle(fontSize: 24),
-        ),
+      body: PageView.builder(
+        scrollDirection: Axis.vertical,
+        itemCount: events.length,
+        itemBuilder: (context, index) {
+          return EventCard(event: events[index]);
+        },
       ),
     );
   }
