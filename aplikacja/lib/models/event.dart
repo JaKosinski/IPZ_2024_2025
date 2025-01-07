@@ -6,8 +6,7 @@ class Event {
   final String name;                // Nazwa wydarzenia
   final String location;            // Lokalizacja wydarzenia
   final DateTime startDate;         // Data rozpoczęcia wydarzenia
-  final TimeOfDay startTime;        // Godzina rozpoczęcia
-  final int maxParticipants;        // Maksymalna liczba uczestników
+  final int maxParticipants;        // Maksymalna liczba uczestników  -1 => bez ograniczeń
   int registeredParticipants;       // Liczba zarejestrowanych użytkowników
   // Może lepiej będzie przypisać listę użytkowników
   // List<Users> registeredParticipants;
@@ -18,7 +17,6 @@ class Event {
     required this.name,
     required this.location,
     required this.startDate,
-    required this.startTime,
     required this.maxParticipants,
     required this.registeredParticipants,
     required this.imagePath,

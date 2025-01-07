@@ -1,6 +1,9 @@
 import "package:flutter/material.dart";
 import '../models/event.dart';
+import '../pages/event_page.dart';
 
+// być może jak chcemy dać przyciski tutaj to tez stateful, dopiero zrozumiałem
+// różnicę między less a ful
 class EventCard extends StatelessWidget {
   final Event event;
 
@@ -8,11 +11,19 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => EventCard(event: event)
+          ),
+        );
+      }, child: Stack(
       fit: StackFit.expand,
       children: [
         // Obrazek, tło
-        Image.network(
+        Image.asset(
           event.imagePath,
           fit: BoxFit.cover,
         ),
@@ -20,10 +31,10 @@ class EventCard extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-                colors: [
-                  Colors.black.withOpacity(0.7),
-                  Colors.transparent,
-                ],
+              colors: [
+                Colors.black.withOpacity(0.9),
+                Colors.transparent,
+              ],
               begin: Alignment.bottomCenter,
               end: Alignment.center,
             ),
@@ -38,7 +49,7 @@ class EventCard extends StatelessWidget {
               Text(
                 event.name,
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
@@ -62,6 +73,7 @@ class EventCard extends StatelessWidget {
           ),
         ),
       ],
+    ),
     );
   }
 }

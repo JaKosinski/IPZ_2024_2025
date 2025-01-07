@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart';
 
-// narazie bez state, chce tylko zaszkicować
 class HomePage extends StatelessWidget {
   final List<Event> events;
 
