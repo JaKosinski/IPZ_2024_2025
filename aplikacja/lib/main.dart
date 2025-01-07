@@ -5,20 +5,20 @@ import 'models/event.dart';
 final List<Event> testEvents = [
   Event(
     id: "0",
-    name: "Testowe wydarzenie",
-    location: "Szczecin",
+    name: "Trening z Pudzianem",
+    location: "Szczecin, siłownia ZUT",
     imagePath: "assets/pudzian0.jpg",
   ),
   Event(
     id: "1",
-    name: "Imieniny Heleny",
-    location: "Dom Heleny",
+    name: "Walka z Pudzianem",
+    location: "Blok 12, osiedle Kaliny",
     imagePath: "assets/pudzian1.jpg",
   ),
   Event(
     id: "2",
-    name: "Potańcówka",
-    location:"Szczecin, Osiedle Zawadzkiego",
+    name: "Przejażdżka z Pudzianem",
+    location:"Szczecin, Jezioro Głębokie",
     imagePath: "assets/pudzian2.jpg",
   ),
 ];
