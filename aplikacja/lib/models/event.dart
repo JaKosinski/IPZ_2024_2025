@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 // nie wiem, czy powinny być faktycznie final, zależy jak będziemy je wczytywać i edytować
 class Event {
   final String id;                  // Unikalny identyfikator

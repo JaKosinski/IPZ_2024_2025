@@ -16,7 +16,7 @@ class EventCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => EventCard(event: event)
+              builder: (context) => EventPage(event: event)
           ),
         );
       }, child: Stack(
@@ -48,7 +48,7 @@ class EventCard extends StatelessWidget {
             children: [
               Text(
                 event.name,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
