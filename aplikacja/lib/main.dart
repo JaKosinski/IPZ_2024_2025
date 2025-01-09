@@ -60,4 +60,3 @@ class MyApp extends StatelessWidget {
       home: SignInPage(events: testEvents),
     );
   }
-}
