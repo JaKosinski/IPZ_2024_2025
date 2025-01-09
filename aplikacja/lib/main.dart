@@ -39,6 +39,7 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
+  
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
@@ -55,7 +56,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  //Dodanie listy użytkowników
+  List<Map<String, String>> _uzytkownicy = [];
+  
+  //Kontrolery tekstowe zbierają dane z pól tekstowych i pozwalają odczytać zawartośc 
+  final TextEditingController _imieController = TextEditingController();
+  final TextEditingController _hasloController = TextEditingController();
 
   void _incrementCounter() {
     setState(() {
