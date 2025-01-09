@@ -37,7 +37,8 @@ class _SignInPageState extends State<SignInPage> {
           children: [
             const Text(
               'Zaloguj się do aplikacji',
-              style: TextStyle(fontSize: 50.0)
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 50.0),
             ),
             const SizedBox(height: 20),
             Padding(
