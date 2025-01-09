@@ -56,7 +56,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  final Map<String, String> _users = {};
 
   final TextEditingController _textController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -112,8 +111,6 @@ class _MyHomePageState extends State<MyHomePage> {
   
   @override
   Widget build(BuildContext context) {
-    String login = "";
-    String password = "";
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -146,7 +143,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   labelText: 'Login',
                 ),
                 onSubmitted: (value) {
-                  login = value;
                   print(value);
                 },
               ),
@@ -160,7 +156,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   labelText: 'Hasło',
                 ),
                 onSubmitted: (value) {
-                  password = value;
                   print(value);
                 }
               )
