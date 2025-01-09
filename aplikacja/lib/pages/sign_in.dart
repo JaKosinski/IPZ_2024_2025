@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 import '../models/event.dart';
+import 'registration.dart';
+
 
 class SignInPage extends StatefulWidget {
   final List<Event> events; // to chyba nie powinno być final, ale dla sprawdzenia rolek będzie
@@ -59,6 +61,7 @@ class _SignInPageState extends State<SignInPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 5.0),
                 child: TextField(
                     controller: _passwordController,
+                    obscureText: true,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Hasło',
@@ -75,6 +78,22 @@ class _SignInPageState extends State<SignInPage> {
                 onPressed: _signIn,
                 child: const Text(
                   'Zaloguj',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Funkcja przekierowania do ekranu rejestracji
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterPage()),
+                  );
+                },
+                child: const Text(
+                  'Zarejestruj się',
                   style: TextStyle(fontSize: 20.0),
                 ),
               ),
