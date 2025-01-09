@@ -45,7 +45,8 @@ class MyApp extends StatelessWidget {
       title: 'Nazwa aplikacji',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true
+        useMaterial3: true,
+        splashFactory: NoSplash.splashFactory,
       ),
       home: SignInPage(events: testEvents),
     );
