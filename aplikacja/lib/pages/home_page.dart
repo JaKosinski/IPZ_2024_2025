@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart';
+import '../pages/filtered_page.dart';
+
+// TODO: spraw, żeby dało się wrócić z wyszukanych wyników do Strony głównej (nowy page?)
+
 
 class HomePage extends StatefulWidget {
   final List<Event> events;
@@ -23,18 +27,19 @@ class _HomePageState extends State<HomePage> {
     _filteredEvents = widget.events;
   }
 
-  void _searchEvents(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        _filteredEvents = widget.events;
-      } else {
-        _filteredEvents = widget.events
-            .where((event) =>
-              event.name.toLowerCase().contains(query.toLowerCase()) ||
-              event.location.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      }
-    });
+  void _filterEvents(String query) {
+    final filteredEvents = widget.events
+        .where((event) =>
+          event.name.toLowerCase().contains(query.toLowerCase()) ||
+          event.location.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => FilteredPage(filteredEvents: filteredEvents))
+
+    );
   }
 
   void _showSearchDialog() {
@@ -45,9 +50,9 @@ class _HomePageState extends State<HomePage> {
           title: const Text('Wyszukiwanie wydarzeń'),
           content: TextField(
             controller: _searchController,
-            onChanged: (value) {
-              _searchEvents(value);
-            }
+            decoration: const InputDecoration(
+              hintText: 'Wprowadź nazwę lub lokalizację'
+            )
           ),
           actions: [
             TextButton(
@@ -56,6 +61,13 @@ class _HomePageState extends State<HomePage> {
                 },
                 child: const Icon(Icons.cancel)
             ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _filterEvents(_searchController.text);
+              },
+              child: const Icon(Icons.search),
+            )
           ],
         );
       }
@@ -67,10 +79,10 @@ class _HomePageState extends State<HomePage> {
       _selectedFromBottomBar = index;
       switch(_selectedFromBottomBar){
         case 0:
-
+          _showSearchDialog();
           break;
         case 1:
-          // TODO dołączanie do wydarzenia
+          // TODO: dołączanie do wydarzenia
       }
     });
   }
@@ -83,9 +95,9 @@ class _HomePageState extends State<HomePage> {
       ),
       body: PageView.builder(
         scrollDirection: Axis.vertical,
-        itemCount: widget.events.length,
+        itemCount: _filteredEvents.length,
         itemBuilder: (context, index) {
-          return EventCard(event: widget.events[index]);
+          return EventCard(event: _filteredEvents[index]);
         },
       ),
       bottomNavigationBar: BottomNavigationBar(

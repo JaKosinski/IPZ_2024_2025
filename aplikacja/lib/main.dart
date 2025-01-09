@@ -30,6 +30,15 @@ final List<Event> testEvents = [
     registeredParticipants: 1,
     imagePath: "assets/pudzian2.jpg",
   ),
+  Event(
+    id: "3",
+    name: "Trening w Fortnite z Pudzianem",
+    location: "Dom Pudziana",
+    startDate: DateTime(2025, 10, 21),
+    maxParticipants: 5,
+    registeredParticipants: 2,
+    imagePath: "assets/pudzian3.jpg",
+  )
 ];
 
 void main() {
