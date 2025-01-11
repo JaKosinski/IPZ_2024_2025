@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart';
 import '../pages/filtered_page.dart';
-
-// TODO: spraw, żeby dało się wrócić z wyszukanych wyników do Strony głównej (nowy page?)
+import '../pages/create_event_page.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -19,13 +18,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedFromBottomBar = 0;
   TextEditingController _searchController = TextEditingController();
-  List<Event> _filteredEvents = [];
+  // List<Event> _filteredEvents = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _filteredEvents = widget.events;
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _filteredEvents = widget.events;
+  // }
 
   void _filterEvents(String query) {
     final filteredEvents = widget.events
@@ -82,7 +81,20 @@ class _HomePageState extends State<HomePage> {
           _showSearchDialog();
           break;
         case 1:
-          // TODO: dołączanie do wydarzenia
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CreateEventPage(
+                onEventCreated: (newEvent) {
+                  setState(() {
+                    widget.events.add(newEvent);
+                    // _filteredEvents = widget.events;
+                  });
+                }
+              ),
+            ),
+          );
+          break;
       }
     });
   }
@@ -95,9 +107,9 @@ class _HomePageState extends State<HomePage> {
       ),
       body: PageView.builder(
         scrollDirection: Axis.vertical,
-        itemCount: _filteredEvents.length,
+        itemCount: widget.events.length,
         itemBuilder: (context, index) {
-          return EventCard(event: _filteredEvents[index]);
+          return EventCard(event: widget.events[index]);
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
