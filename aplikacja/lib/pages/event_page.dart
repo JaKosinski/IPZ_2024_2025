@@ -15,40 +15,53 @@ class EventPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white12,
-      body: Stack(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(
-            // być może tutaj trzeba przemyśleć konstruktor, bo ścieżka jest względem pliku, który inicjalizuje event
-            event.imagePath,
-            height: photoHeight,
-            width: double.infinity,
-            fit: BoxFit.cover,
+          Stack(
+            children: [
+              Image.asset(
+                // być może tutaj trzeba przemyśleć konstruktor, bo ścieżka jest względem pliku, który inicjalizuje event
+                event.imagePath,
+                height: photoHeight,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+              // pojebie mnie ten gradient
+              Container(
+                height: photoHeight,
+                decoration: BoxDecoration(
+                  gradient: AppGradients.eventPageGradient,
+                ),
+              ),
+              // tutaj mamy tekst na zdjeciu
+              Positioned(
+                bottom: 16,
+                left: 16,
+                child: Text(
+                  event.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight:  FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
-          // pojebie mnie ten gradient
-          Container(
-            height: photoHeight,
-            decoration: BoxDecoration(
-              gradient: AppGradients.eventPageGradient,
-            ),
-          ),
-          // tutaj mamy tekst na zdjeciu
-          Positioned(
-            bottom: 16,
-            left: 16,
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Text(
-              event.name,
+              event.location,
               style: const TextStyle(
+                fontSize: 20,
                 color: Colors.white,
-                fontSize: 24,
-                fontWeight:  FontWeight.bold,
               ),
             ),
           ),
         ],
       ),
-      // Padding(
-      //   padding: ,
-      // ),
     );
   }
 }
