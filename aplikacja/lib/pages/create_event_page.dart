@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/event.dart';
 
 class CreateEventPage extends StatefulWidget {
@@ -16,6 +17,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
   final TextEditingController _locationController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   final TextEditingController _maxParticipantsController = TextEditingController();
+  String? _imagePath;
+  final ImagePicker _picker = ImagePicker();
 
 
   void _submitEvent() {
@@ -27,16 +30,14 @@ class _CreateEventPageState extends State<CreateEventPage> {
 
         final newEvent = Event(
           // nie wiem jak porządnie dać id, więc będę je tworzył na podstawie czasu
-          id: DateTime
-              .now()
-              .millisecondsSinceEpoch
-              .toString(),
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
           name: _nameController.text,
           location: _locationController.text,
+          eventType: 'no_type',
           startDate: _selectedDate,
           maxParticipants: int.parse(_maxParticipantsController.text),
           registeredParticipants: 0,
-          imagePath: 'assets/placeholder.jpg',
+          imagePath: _imagePath ?? 'assets/placeholder.jpg',
         );
 
         widget.onEventCreated(newEvent);
@@ -49,10 +50,43 @@ class _CreateEventPageState extends State<CreateEventPage> {
     }
   }
 
-  String _addEventPhoto() {
-    // TODO Dodawanie zdjęć, można już na gotowo do bazy
-    // zmień też wtedy w _submitEvent() żeby dobrze dodawało imagePath
-    throw UnimplementedError();
+  Future<void> _addEventPhoto() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Wybierz z galerii'),
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+                if (image != null) {
+                  setState(() {
+                    _imagePath = image.path;
+                  });
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Zrób zdjęcie'),
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+                if (image != null) {
+                  setState(() {
+                    _imagePath = image.path;
+                  });
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -67,7 +101,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
             children: [
               ElevatedButton(
                   onPressed: _addEventPhoto,
-                  child: const Icon(Icons.camera),
+                  child: const Icon(Icons.photo),
               ),
               TextFormField(
                 controller: _nameController,
