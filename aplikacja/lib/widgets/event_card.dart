@@ -56,7 +56,7 @@ class EventCard extends StatelessWidget {
                 ),
               ),
               Text(
-                event.location,
+                '${event.location}  |  ${event.eventType}',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.white70,

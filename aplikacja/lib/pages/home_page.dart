@@ -122,6 +122,9 @@ class _HomePageState extends State<HomePage> {
             ),
           );
           break;
+        case 3:
+          // TODO filtrowanie guziczek
+          break;
       }
     });
   }
@@ -158,6 +161,10 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.add),
             label: 'dołącz',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.filter_alt_outlined),
+            label: 'filtruj',
+          )
         ],
       ),
     );
