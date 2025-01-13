@@ -19,7 +19,8 @@ class EventCard extends StatelessWidget {
               builder: (context) => EventPage(event: event)
           ),
         );
-      }, child: Stack(
+      },
+      child: Stack(
       fit: StackFit.expand,
       children: [
         // Obrazek, tło

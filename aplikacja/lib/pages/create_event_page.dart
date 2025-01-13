@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/event.dart';
+import '../widgets/event_type_grid.dart';
+import 'dart:io';
 
 class CreateEventPage extends StatefulWidget {
   final Function(Event) onEventCreated;
@@ -15,11 +18,37 @@ class _CreateEventPageState extends State<CreateEventPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  String? _selectedEventType;
   DateTime _selectedDate = DateTime.now();
   final TextEditingController _maxParticipantsController = TextEditingController();
-  String? _imagePath;
+  String? _imagePath = 'assets/placeholder.jpg';
   final ImagePicker _picker = ImagePicker();
 
+  // TODO zastąp to zapisem na dysk/do bazy danych
+  // funkcja zapisująca zdjęcie wydarzenia w telefonie
+  // jest tylko i wyłącznie do debugu, to nie może trafić do produkcji
+  // ta funkcja jest dosyć syfiasta, uważajcie z używaniem jej
+  Future<String?> saveImageLocaly(XFile? image) async {
+    try {
+      if (image != null) {
+        // ścieżka do roota aplikacji
+        final directory = await getExternalStorageDirectory();
+        print(directory);
+
+        // ścieżka zapisu obrazu
+        final String filePath = '${directory!.path}/assets/${image.name}';
+        print(filePath);
+
+        final File imageFile = File(image.path);
+        await imageFile.copy(filePath);
+
+        return filePath;
+      }
+    } catch (e) {
+      print("Błąd podczas zapisu obrazu: $e");
+      return null;
+    }
+  }
 
   void _submitEvent() {
     if (_formKey.currentState!.validate()) {
@@ -46,10 +75,19 @@ class _CreateEventPageState extends State<CreateEventPage> {
         print("Error przy tworzeniu wydarzenia: $e");
       }
     } else {
-      print("Niepoprawny formularz!");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Niepoprawny formularz'),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      _nameController.clear();
+      _locationController.clear();
+      _maxParticipantsController.clear();
     }
   }
 
+  // TODO no nie zmienia zdjęcia, nie wiem czy tu jest problem czy dalej z zapisywaniem pamiętaj o tym
   Future<void> _addEventPhoto() async {
     showModalBottomSheet(
       context: context,
@@ -64,9 +102,12 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 Navigator.pop(context);
                 final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
                 if (image != null) {
-                  setState(() {
-                    _imagePath = image.path;
-                  });
+                  final String? savedPath = await saveImageLocaly(image);
+                  if (savedPath != null) {
+                    setState(() {
+                      _imagePath = savedPath;
+                    });
+                  }
                 }
               },
             ),
@@ -77,13 +118,32 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 Navigator.pop(context);
                 final XFile? image = await _picker.pickImage(source: ImageSource.camera);
                 if (image != null) {
-                  setState(() {
-                    _imagePath = image.path;
-                  });
+                  final String? savedPath = await saveImageLocaly(image);
+                  if (savedPath != null) {
+                    setState(() {
+                      _imagePath = image.path;
+                    });
+                  }
                 }
               },
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _openEventTypeSelector(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return EventTypeGrid(
+          onEventTypeSelected: (String eventType) {
+            setState(() {
+              _selectedEventType = eventType;
+            });
+            Navigator.pop(context);
+          },
         );
       },
     );
@@ -99,9 +159,21 @@ class _CreateEventPageState extends State<CreateEventPage> {
           key: _formKey,
           child: Column(
             children: [
+              GestureDetector(
+                onTap: _addEventPhoto,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16.0),
+                  child:  Image.asset(
+                    _imagePath!,
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  )
+                ),
+              ),
               ElevatedButton(
-                  onPressed: _addEventPhoto,
-                  child: const Icon(Icons.photo),
+                  onPressed: () => _openEventTypeSelector(context),
+                  child: const Icon(Icons.apps),
               ),
               TextFormField(
                 controller: _nameController,
