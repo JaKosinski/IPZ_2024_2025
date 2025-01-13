@@ -19,7 +19,8 @@ class EventCard extends StatelessWidget {
               builder: (context) => EventPage(event: event)
           ),
         );
-      }, child: Stack(
+      },
+      child: Stack(
       fit: StackFit.expand,
       children: [
         // Obrazek, tło
@@ -55,7 +56,7 @@ class EventCard extends StatelessWidget {
                 ),
               ),
               Text(
-                event.location,
+                '${event.location}  |  ${event.eventType}',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.white70,

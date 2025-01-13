@@ -28,16 +28,43 @@ class _HomePageState extends State<HomePage> {
 
   void _filterEvents(String query) {
     final filteredEvents = widget.events
-        .where((event) =>
-          event.name.toLowerCase().contains(query.toLowerCase()) ||
-          event.location.toLowerCase().contains(query.toLowerCase()))
-        .toList();
+      .where((event) =>
+        event.name.toLowerCase().contains(query.toLowerCase()) ||
+        event.location.toLowerCase().contains(query.toLowerCase()))
+      .toList();
+
+// TODO to powinno być sprawdzane w filtered_page ale tam sie jebie
+    if(filteredEvents.isEmpty || query.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              query.isEmpty ? 'Pole wyszukania nie może być puste.' : 'Brak wyników dla tego hasła.',
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Icon(
+                  Icons.cancel,
+                  color: Colors.red,
+                ),
+              )
+            ],
+          );
+        }
+      );
+      _searchController.clear();
+      return;
+    }
 
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => FilteredPage(filteredEvents: filteredEvents))
-
+        builder: (context) => FilteredPage(filteredEvents: filteredEvents))
     );
   }
 
@@ -95,6 +122,9 @@ class _HomePageState extends State<HomePage> {
             ),
           );
           break;
+        case 3:
+          // TODO filtrowanie guziczek
+          break;
       }
     });
   }
@@ -131,6 +161,10 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.add),
             label: 'dołącz',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.filter_alt_outlined),
+            label: 'filtruj',
+          )
         ],
       ),
     );
