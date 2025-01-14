@@ -9,7 +9,7 @@ class EventCard extends StatelessWidget {
 
   EventCard({
     super.key, required this.event
-  }) : dateDiffrence = DateTime.now()
+  }) : dateDiffrence = -DateTime.now()
           .difference(DateTime(event.startDate.year, event.startDate.month, event.startDate.day))
           .inDays;
 
