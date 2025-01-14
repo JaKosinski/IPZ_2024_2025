@@ -15,6 +15,7 @@ class EventTypeGrid extends StatelessWidget {
     {'type': 'Outdoor', 'icon': 'assets/icons/icon_placeholder.png'},
     {'type': 'Relaks', 'icon': 'assets/icons/icon_placeholder.png'},
     {'type': 'Firmowe', 'icon': 'assets/icons/icon_placeholder.png'},
+    {'type': 'Motoryzacyjne', 'icon': 'assets/icons/icon_placeholder.png'},
   ];
 
   @override

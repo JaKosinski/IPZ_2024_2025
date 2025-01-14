@@ -27,7 +27,7 @@ final List<Event> testEvents = [
     id: "2",
     name: "Przejażdżka z Pudzianem",
     location:"Szczecin, Jezioro Głębokie",
-    type: 'Car Meet',
+    type: 'Motoryzacyjne',
     startDate: DateTime(2025, 12, 24),
     maxParticipants: 3,
     registeredParticipants: 1,
@@ -42,6 +42,16 @@ final List<Event> testEvents = [
     maxParticipants: 5,
     registeredParticipants: 2,
     imagePath: "assets/pudzian3.jpg",
+  ),
+  Event(
+    id: "4",
+    name: "Montaż gazu w Lamborghini",
+    location: "Szczecin, ul. Santocka",
+    type: "Motoryzacyjne",
+    startDate: DateTime(2025, 2, 28),
+    maxParticipants: -1,
+    registeredParticipants: 0,
+    imagePath: "assets/pudzian4.jpg",
   )
 ];
 
