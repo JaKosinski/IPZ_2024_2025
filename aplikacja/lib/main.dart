@@ -7,6 +7,7 @@ final List<Event> testEvents = [
     id: "0",
     name: "Trening z Pudzianem",
     location: "Szczecin, siłownia ZUT",
+    type: 'Warsztaty',
     startDate: DateTime(2025, 2, 14, 18, 0),
     maxParticipants: -1,
     registeredParticipants: 10,
@@ -16,6 +17,7 @@ final List<Event> testEvents = [
     id: "1",
     name: "Walka z Pudzianem",
     location: "Blok 12, osiedle Kaliny",
+    type: 'Sportowe',
     startDate: DateTime(2025, 1, 10, 19, 30),
     maxParticipants: 1,
     registeredParticipants: 0,
@@ -25,6 +27,7 @@ final List<Event> testEvents = [
     id: "2",
     name: "Przejażdżka z Pudzianem",
     location:"Szczecin, Jezioro Głębokie",
+    type: 'Car Meet',
     startDate: DateTime(2025, 12, 24),
     maxParticipants: 3,
     registeredParticipants: 1,
@@ -34,6 +37,7 @@ final List<Event> testEvents = [
     id: "3",
     name: "Trening w Fortnite z Pudzianem",
     location: "Dom Pudziana",
+    type: 'Gaming',
     startDate: DateTime(2025, 10, 21),
     maxParticipants: 5,
     registeredParticipants: 2,
@@ -59,9 +63,5 @@ class MyApp extends StatelessWidget {
       ),
       home: SignInPage(events: testEvents),
     );
-<<<<<<< HEAD
-  }}
-=======
   }
 }
->>>>>>> 5984cdb4fbab1397226af4d350691df718172fa8

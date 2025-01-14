@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart';
 import '../pages/filtered_page.dart';
-import '../pages/create_event_page.dart';
+import '../pages/new_event_page.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -26,21 +26,52 @@ class _HomePageState extends State<HomePage> {
   //   _filteredEvents = widget.events;
   // }
 
+  /// Funkcja wyszukuje eventy ze słowem kluczowym w nazwie/lokalizacji i otweira filtered page ze znalezionymi wynikami
+  /// args:
+  ///   String query: hasło kluczowe do wyszukania
   void _filterEvents(String query) {
     final filteredEvents = widget.events
-        .where((event) =>
-          event.name.toLowerCase().contains(query.toLowerCase()) ||
-          event.location.toLowerCase().contains(query.toLowerCase()))
-        .toList();
+      .where((event) =>
+        event.name.toLowerCase().contains(query.toLowerCase()) ||
+        event.location.toLowerCase().contains(query.toLowerCase()))
+      .toList();
+
+// TODO to powinno być sprawdzane w filtered_page ale tam sie jebie
+    if(filteredEvents.isEmpty || query.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              query.isEmpty ? 'Pole wyszukania nie może być puste.' : 'Brak wyników dla tego hasła.',
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Icon(
+                  Icons.cancel,
+                  color: Colors.red,
+                ),
+              )
+            ],
+          );
+        }
+      );
+      _searchController.clear();
+      return;
+    }
 
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => FilteredPage(filteredEvents: filteredEvents))
-
+        builder: (context) => FilteredPage(filteredEvents: filteredEvents))
     );
   }
 
+  /// Otwieranie okna dialogowego z wyszukiwaniem
   void _showSearchDialog() {
     showDialog(
       context: context,
@@ -73,6 +104,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Obsługa NavigationBara na dole ekranu
+  /// args:
+  ///   int index: wybrany przycisk
   void _onBarTapped(int index) {
     setState(() {
       _selectedFromBottomBar = index;
@@ -94,6 +128,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           );
+          break;
+        case 3:
+          // TODO filtrowanie guziczek
           break;
       }
     });
@@ -131,6 +168,10 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.add),
             label: 'dołącz',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.filter_alt_outlined),
+            label: 'filtruj',
+          )
         ],
       ),
     );
