@@ -21,7 +21,6 @@ class EventPage extends StatelessWidget {
           Stack(
             children: [
               Image.asset(
-                // być może tutaj trzeba przemyśleć konstruktor, bo ścieżka jest względem pliku, który inicjalizuje event
                 event.imagePath,
                 height: photoHeight,
                 width: double.infinity,
@@ -53,7 +52,7 @@ class EventPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              event.location,
+              '${event.location}  |  ${event.type}',
               style: const TextStyle(
                 fontSize: 20,
                 color: Colors.white,
