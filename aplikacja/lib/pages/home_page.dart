@@ -130,7 +130,18 @@ class _HomePageState extends State<HomePage> {
           );
           break;
         case 3:
-          // TODO filtrowanie guziczek
+          showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Filtruj po:'),
+
+                  ]
+                );
+              },
+          );
           break;
       }
     });

@@ -3,8 +3,6 @@ import '../models/event.dart';
 import '../pages/event_page.dart';
 import '../utils/tools.dart';
 
-// być może jak chcemy dać przyciski tutaj to tez stateful, dopiero zrozumiałem
-// różnicę między less a ful
 class EventCard extends StatelessWidget {
   final Event event;
   final int dateDiffrence;
