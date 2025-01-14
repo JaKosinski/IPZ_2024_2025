@@ -62,7 +62,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           name: _nameController.text,
           location: _locationController.text,
-          eventType: 'no_type',
+          type: 'no_type',
           startDate: _selectedDate,
           maxParticipants: int.parse(_maxParticipantsController.text),
           registeredParticipants: 0,

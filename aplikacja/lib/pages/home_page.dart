@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart';
 import '../pages/filtered_page.dart';
-import '../pages/create_event_page.dart';
+import '../pages/new_event_page.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -26,6 +26,9 @@ class _HomePageState extends State<HomePage> {
   //   _filteredEvents = widget.events;
   // }
 
+  /// Funkcja wyszukuje eventy ze słowem kluczowym w nazwie/lokalizacji i otweira filtered page ze znalezionymi wynikami
+  /// args:
+  ///   String query: hasło kluczowe do wyszukania
   void _filterEvents(String query) {
     final filteredEvents = widget.events
       .where((event) =>
@@ -68,6 +71,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Otwieranie okna dialogowego z wyszukiwaniem
   void _showSearchDialog() {
     showDialog(
       context: context,
@@ -100,6 +104,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Obsługa NavigationBara na dole ekranu
+  /// args:
+  ///   int index: wybrany przycisk
   void _onBarTapped(int index) {
     setState(() {
       _selectedFromBottomBar = index;

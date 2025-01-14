@@ -1,13 +1,19 @@
 import "package:flutter/material.dart";
 import '../models/event.dart';
 import '../pages/event_page.dart';
+import '../utils/tools.dart';
 
 // być może jak chcemy dać przyciski tutaj to tez stateful, dopiero zrozumiałem
 // różnicę między less a ful
 class EventCard extends StatelessWidget {
   final Event event;
+  final int dateDiffrence;
 
-  const EventCard({Key? key, required this.event}) : super(key: key);
+  EventCard({
+    super.key, required this.event
+  }) : dateDiffrence = DateTime.now()
+          .difference(DateTime(event.startDate.year, event.startDate.month, event.startDate.day))
+          .inDays;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +62,9 @@ class EventCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '${event.location}  |  ${event.eventType}',
+                dateDiffrence <= 0 ?
+                    'Dzisiaj  |  ${event.location}'
+                    : 'Za ${dateDiffrence} dni  |  ${event.location}',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.white70,
