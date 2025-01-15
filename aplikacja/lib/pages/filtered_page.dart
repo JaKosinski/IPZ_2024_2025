@@ -4,8 +4,9 @@ import '../widgets/event_card.dart';
 
 class FilteredPage extends StatelessWidget {
   final List<Event> filteredEvents;
+  final Function(Event) onUpdate; // funkcja do aktualizacji wydarzeń
 
-  const FilteredPage({Key? key, required this.filteredEvents}) : super(key: key);
+  const FilteredPage({Key? key, required this.filteredEvents,required this.onUpdate}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class FilteredPage extends StatelessWidget {
         scrollDirection: Axis.vertical,
         itemCount: filteredEvents.length,
         itemBuilder: (context, index) {
-          return EventCard(event: filteredEvents[index]);
+          return EventCard(event: filteredEvents[index], onUpdate: onUpdate,);
         },
       ),
     );

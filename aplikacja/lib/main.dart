@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'pages/sign_in.dart';
 import 'models/event.dart';
 
-final List<Event> testEvents = [
+List<Event> testEvents = [
   Event(
     id: "0",
     name: "Trening z Pudzianem",
