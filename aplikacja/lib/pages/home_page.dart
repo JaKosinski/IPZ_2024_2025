@@ -27,6 +27,12 @@ class _HomePageState extends State<HomePage> {
   //   _filteredEvents = widget.events;
   // }
 
+  void _deleteEvent(Event event) {
+  setState(() {
+    widget.events.removeWhere((e) => e.id == event.id);
+  });
+}
+
   /// Funkcja wyszukuje eventy ze słowem kluczowym w nazwie/lokalizacji i otweira filtered page ze znalezionymi wynikami
   /// args:
   ///   String query: hasło kluczowe do wyszukania
@@ -77,7 +83,7 @@ class _HomePageState extends State<HomePage> {
               widget.events[index] = updatedEvent;
             }
           });
-        },))
+        }, onDelete: _deleteEvent,))
     );
   }
 
@@ -173,7 +179,13 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EventPage(event: widget.events[index], onUpdate: (updatedEvent) {setState((){widget.events[index] = updatedEvent;});})
+                  builder: (context) => EventPage(
+                    event: widget.events[index],
+                     onUpdate: (updatedEvent) {
+                      setState((){widget.events[index] = updatedEvent;});
+                      },
+                      onDelete: _deleteEvent,
+                      )
                 )
                 );
             },
@@ -184,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                 setState(() {
                   widget.events[index] = updatedEvent;
                 });
-              }
+              }, onDelete: _deleteEvent,
               ),
           );
         },

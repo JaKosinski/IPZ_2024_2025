@@ -114,7 +114,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   final passwordRegex = RegExp(
                   r'^([A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$');
                   if(!passwordRegex.hasMatch(value)){
-                    return 'Hasło mudi zawierać conajmniej 8 znaków, wielką literę, cyfrę i znak specjalny. ';
+                    return 'Hasło musi zawierać co najmniej 8 znaków, wielką literę, cyfrę i znak specjalny. ';
                   }
                   return null; // Poprawne hasło
                 },

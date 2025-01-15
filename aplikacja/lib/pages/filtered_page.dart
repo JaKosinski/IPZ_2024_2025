@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart';
 
 class FilteredPage extends StatelessWidget {
   final List<Event> filteredEvents;
   final Function(Event) onUpdate; // funkcja do aktualizacji wydarzeń
+  final Function(Event) onDelete;
 
-  const FilteredPage({Key? key, required this.filteredEvents,required this.onUpdate}) : super(key: key);
+  const FilteredPage({Key? key, required this.filteredEvents,required this.onUpdate,required this.onDelete}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class FilteredPage extends StatelessWidget {
         scrollDirection: Axis.vertical,
         itemCount: filteredEvents.length,
         itemBuilder: (context, index) {
-          return EventCard(event: filteredEvents[index], onUpdate: onUpdate,);
+          return EventCard(event: filteredEvents[index], onUpdate: onUpdate, onDelete: onDelete,);
         },
       ),
     );

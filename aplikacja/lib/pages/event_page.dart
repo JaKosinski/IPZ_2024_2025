@@ -7,10 +7,10 @@ import '../pages/edit_event_page.dart';
 // ja chcę zrobić już wygląd, później nie będzie dużo zmian
 class EventPage extends StatefulWidget {
   final Event event;
-  //final Function(Event) onDelete; // Callback do usuwania wydarzenia
+  final Function(Event) onDelete; // Callback do usuwania wydarzenia
   final Function(Event) onUpdate;
 
-  const EventPage({Key? key, required this.event,required this.onUpdate}) : super(key: key);
+  const EventPage({Key? key, required this.event,required this.onUpdate, required this.onDelete}) : super(key: key);
 
   @override
   _EventPageState createState() => _EventPageState();
@@ -29,6 +29,12 @@ class _EventPageState extends State<EventPage>{
   void _updateEvent(Event updatedEvent)
   {
     setState(() {_currentEvent = updatedEvent;});
+  }
+
+
+  void _deleteEvent() {
+    widget.onDelete(_currentEvent);
+    Navigator.pop(context); // Wracamy do poprzedniej strony
   }
 
   @override
@@ -86,8 +92,16 @@ class _EventPageState extends State<EventPage>{
             child: ElevatedButton(
               onPressed: () => _navigateToEditPage(context),
               child: const Text ('Edytuj wydarzenie')
-              )
-          )
+              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ElevatedButton(
+              onPressed: _deleteEvent,
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text('Usuń wydarzenie'),
+            ),
+          ),
         ],
       ),
     );
