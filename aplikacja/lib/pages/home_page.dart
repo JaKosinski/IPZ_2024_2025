@@ -1,3 +1,4 @@
+import 'package:Hive/pages/event_page.dart';
 import 'package:flutter/material.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart';
@@ -67,7 +68,16 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => FilteredPage(filteredEvents: filteredEvents))
+        builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (updatedEvent)
+        {
+          setState(() {
+            final index = widget.events.indexWhere((event) => event.id == updatedEvent.id);
+            if(index != -1)
+            {
+              widget.events[index] = updatedEvent;
+            }
+          });
+        },))
     );
   }
 
@@ -157,7 +167,26 @@ class _HomePageState extends State<HomePage> {
         scrollDirection: Axis.vertical,
         itemCount: widget.events.length,
         itemBuilder: (context, index) {
-          return EventCard(event: widget.events[index]);
+          return GestureDetector(
+            onTap: () {
+              //przekazujemy onUpdate do aktualizacji
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EventPage(event: widget.events[index], onUpdate: (updatedEvent) {setState((){widget.events[index] = updatedEvent;});})
+                )
+                );
+            },
+            child: EventCard(
+              event: widget.events[index],
+              onUpdate: (updatedEvent)
+              {
+                setState(() {
+                  widget.events[index] = updatedEvent;
+                });
+              }
+              ),
+          );
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
