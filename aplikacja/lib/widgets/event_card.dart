@@ -61,6 +61,10 @@ class EventCard extends StatelessWidget {
                 ),
               ),
               Text(
+              '${event.registeredParticipants}/${event.maxParticipants} uczestników',
+              style: const TextStyle(fontSize: 16, color: Colors.white70),
+              ),
+              Text(
                 dateDiffrence <= 0 ?
                     'Dzisiaj  |  ${event.location}'
                     : 'Za ${dateDiffrence} dni  |  ${event.location}',
@@ -69,6 +73,7 @@ class EventCard extends StatelessWidget {
                   color: Colors.white70,
                 ),
               ),
+             
               const SizedBox(height: 10),
               Text(
                 "ID: ${event.id}",
@@ -77,9 +82,11 @@ class EventCard extends StatelessWidget {
                   color: Colors.blueAccent,
                 ),
               ),
+            
             ],
           ),
         ),
+       
       ],
     ),
     );

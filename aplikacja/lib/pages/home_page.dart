@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (Event ) {  },)) //dodane onUpdate?!
+          builder: (context) => FilteredPage(filteredEvents: filteredEvents, ))//onUpdate: (updatedEvent) {  }, onDelete: (Event ) {  },)) //dodane onUpdate?!
     );
   }
 
@@ -134,7 +134,18 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (Event ) {  },), //dodane onUpdate?!
+          builder: (context) => FilteredPage(filteredEvents: filteredEvents, 
+          onUpdate: (updatedEvent) {
+            setState((){
+              final index = widget.events.indexWhere((event) => event.id == updatedEvent.id);
+              if (index != -1)
+              {
+                widget.events[index] = updatedEvent;
+              }
+            });
+
+          },
+           onDelete: _deleteEvent), //dodane onUpdate?!
       ),
     );
   }

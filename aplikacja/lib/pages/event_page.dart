@@ -37,6 +37,47 @@ class _EventPageState extends State<EventPage>{
     Navigator.pop(context); // Wracamy do poprzedniej strony
   }
 
+  void _joinEvent()
+  {
+    if(_currentEvent.registeredParticipants < _currentEvent.maxParticipants)
+    {
+      setState(() {
+        _currentEvent.registeredParticipants++;
+      });
+      widget.onUpdate(_currentEvent);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content:Text('Dołączono do wydarzenia: ${_currentEvent.name}')),
+        );
+    }
+    else
+    {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Brak miejsc w wydarzeniu: ${_currentEvent.name}')),
+        );
+    }
+  }
+
+  void _leaveEvent()
+  {
+    if(_currentEvent.registeredParticipants > 0)
+    {
+      setState(() {
+        _currentEvent.registeredParticipants--;
+      });
+      widget.onUpdate(_currentEvent);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Wypisano z wydarzenia: ${_currentEvent.name}')),
+      );
+    }
+    else
+    {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Nie można wypisać się z wydarzenia: ${_currentEvent.name}, ponieważ nie jesteś zapisany.')),
+
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const double photoHeight = 300;
@@ -75,6 +116,7 @@ class _EventPageState extends State<EventPage>{
                   ),
                 ),
               ),
+             
             ],
           ),
           Padding(
@@ -87,6 +129,18 @@ class _EventPageState extends State<EventPage>{
               ),
             ),
           ),
+          Text(
+                  'Zapisanych uczestników: ${_currentEvent.registeredParticipants}/${_currentEvent.maxParticipants}',
+                  style: const TextStyle(fontSize: 16),
+          ),
+          ElevatedButton(
+                onPressed: _joinEvent,
+                 child: const Text('Dołącz do wydarzenia'),
+                 ),
+                 
+          ElevatedButton(onPressed: _leaveEvent, child: const Text('Wypisz się z wydarzenia'),
+          ),
+                 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ElevatedButton(
@@ -102,6 +156,7 @@ class _EventPageState extends State<EventPage>{
               child: const Text('Usuń wydarzenie'),
             ),
           ),
+          
         ],
       ),
     );

@@ -84,17 +84,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   if (value == null || value.isEmpty) {
                     return 'Wprowadź hasło';
                   }
-<<<<<<< HEAD
-                  //walidacja czy hasło ma Jedną wielką litere,jedną małą litere,
-                  // conajmniej jedną cyfrę, conajmniej jeden znak specjalny i minimum 8 znaków
-                  final passwordRegex = RegExp(
-                  r'^([A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$');
-                  if(!passwordRegex.hasMatch(value)){
-                    return 'Hasło musi zawierać co najmniej 8 znaków, wielką literę, cyfrę i znak specjalny. ';
-=======
                   if (value.length < 8) {
                     return 'Hasło musi mieć co najmniej 8 znaków';
->>>>>>> 3d3733239acacb426f5faf3d58b15c4fa0f150e5
                   }
                   return null;
                 },
