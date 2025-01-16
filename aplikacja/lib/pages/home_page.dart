@@ -6,6 +6,7 @@ import '../models/event.dart';
 import '../widgets/event_card.dart';
 import '../pages/filtered_page.dart';
 import '../pages/new_event_page.dart';
+import '../pages/profile_page.dart';
 
 
 
@@ -13,7 +14,7 @@ class HomePage extends StatefulWidget {
   final List<Event> events;
 
 
-  const HomePage({Key? key, required this.events}) : super(key: key);
+  const HomePage({super.key, required this.events});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -22,7 +23,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Event> _events = [];
   int _selectedFromBottomBar = 0;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -132,6 +133,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+  
 
   /// Otwieranie okna dialogowego z wyszukiwaniem
   void _showSearchDialog({bool onlyLocation = false}) {
@@ -162,6 +164,7 @@ class _HomePageState extends State<HomePage> {
               },
               child: const Icon(Icons.search),
             )
+            
           ],
         );
       }
@@ -202,7 +205,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     const Text(
                       'Filtruj po:',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight:  FontWeight.bold,
                       ),
                     ),
@@ -247,6 +250,15 @@ class _HomePageState extends State<HomePage> {
               },
           );
           break;
+          case 3:
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ProfilePage(),
+    ),
+  );
+  break;
+
       }
     });
   }
@@ -287,13 +299,13 @@ class _HomePageState extends State<HomePage> {
         // powiem Wam szczerze, że nie wiem co robi połowa z tych właściwości, ale buja z nimi
         elevation: 0,
         enableFeedback: false,
-        backgroundColor: Colors.black54,
+         backgroundColor: Colors.black54, // Ustawienie szarego tła
         currentIndex: _selectedFromBottomBar,
         onTap: _onBarTapped,
         showUnselectedLabels: false,
         showSelectedLabels: false,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white,
+        selectedItemColor: const Color.fromARGB(255, 0, 0, 0),
+        unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
         items: const [
           BottomNavigationBarItem(  // 0
             icon: Icon(Icons.search),
@@ -306,7 +318,11 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.filter_alt_outlined),
             label: 'filtruj',
-          )
+          ),
+          BottomNavigationBarItem(  // 3
+          icon: Icon(Icons.person),
+          label: 'profil',
+        ),
         ],
       ),
     );

@@ -3,6 +3,7 @@ import 'package:Hive/pages/registration.dart';
 import 'package:flutter/material.dart';
 import 'pages/sign_in.dart';
 import 'models/event.dart';
+import 'pages/profile_page.dart';
 
 List<Event> testEvents = [
   Event(
@@ -77,7 +78,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/sign_in': (context) => SignInPage(events: testEvents),
         '/register': (context) => RegisterPage(),
-        '/home': (context) => HomePage(events: testEvents)
+        '/home': (context) => HomePage(events: testEvents),
+        
 
       },
       //home: SignInPage(events: testEvents),

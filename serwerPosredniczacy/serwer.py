@@ -19,17 +19,12 @@ def register():
     try:
         data = request.get_json()
         nickname = data['nickname']
-        first_name = data['firstName']  # Poprawiona nazwa klucza
-        last_name = data['lastName']  # Poprawiona nazwa klucza
         email = data['email']
         password = data['password']
 
         cursor = mydb.cursor()
-        sql = """
-        INSERT INTO users (nickname, email, password, firstName, lastName) 
-        VALUES (%s, %s, %s, %s, %s)
-        """
-        val = (nickname, email, password, first_name, last_name)
+        sql = "INSERT INTO users (nickname, email, password) VALUES (%s, %s, %s)"
+        val = (nickname, email, password)
         cursor.execute(sql, val)
         mydb.commit()
 
@@ -39,7 +34,8 @@ def register():
             return jsonify({'error': 'Taki użytkownik już istnieje'}), 409
         else:
             return jsonify({'error': str(err)}), 500
-
+        
+        
 @app.route('/login', methods=['POST'])
 def login():
     try:
