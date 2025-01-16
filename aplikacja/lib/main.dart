@@ -1,3 +1,5 @@
+import 'package:Hive/pages/home_page.dart';
+import 'package:Hive/pages/registration.dart';
 import 'package:flutter/material.dart';
 import 'pages/sign_in.dart';
 import 'models/event.dart';
@@ -65,13 +67,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Nazwa aplikacji',
+      title: 'Hive',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
         splashFactory: NoSplash.splashFactory,
       ),
-      home: SignInPage(events: testEvents),
+      initialRoute: '/sign_in',
+      routes: {
+        '/sign_in': (context) => SignInPage(events: testEvents),
+        '/register': (context) => RegisterPage(),
+        '/home': (context) => HomePage(events: testEvents)
+
+      },
+      //home: SignInPage(events: testEvents),
     );
   }
 }
