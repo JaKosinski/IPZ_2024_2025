@@ -102,6 +102,16 @@ class _EventPageState extends State<EventPage>{
                   gradient: AppGradients.eventPageGradient,
                 ),
               ),
+                 Positioned(
+                    top: 16,
+                    left: 16,
+                    child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.black),
+                    onPressed: () {
+                    Navigator.popUntil(context, (route) => route.isFirst); // Powrót do strony głównej
+                    },
+                    ),
+                  ),
               // tutaj mamy tekst na zdjeciu
               Positioned(
                 bottom: 16,
@@ -129,33 +139,77 @@ class _EventPageState extends State<EventPage>{
               ),
             ),
           ),
-          Text(
-                  'Zapisanych uczestników: ${_currentEvent.registeredParticipants}/${_currentEvent.maxParticipants}',
-                  style: const TextStyle(fontSize: 16),
-          ),
-          ElevatedButton(
-                onPressed: _joinEvent,
-                 child: const Text('Dołącz do wydarzenia'),
-                 ),
-                 
-          ElevatedButton(onPressed: _leaveEvent, child: const Text('Wypisz się z wydarzenia'),
-          ),
-                 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ElevatedButton(
-              onPressed: () => _navigateToEditPage(context),
-              child: const Text ('Edytuj wydarzenie')
-              ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ElevatedButton(
-              onPressed: _deleteEvent,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Usuń wydarzenie'),
+            child: Text(
+              'Zapisanych uczestników: ${_currentEvent.registeredParticipants}/${_currentEvent.maxParticipants}',
+              style: const TextStyle(fontSize:16),
             ),
           ),
+          const SizedBox(height: 16),
+          Center(child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius:BorderRadius.circular(16),
+            ),
+            child: Padding(padding: 
+            const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton.icon(onPressed: _joinEvent,
+                icon: const Icon(Icons.add_circle),
+                label: const Text('Dołącz do wydarzenia'),
+                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity,48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                ),
+                ),
+                const SizedBox(height: 10),
+                if(_currentEvent.registeredParticipants > 0)
+                  ElevatedButton.icon(onPressed: _leaveEvent, icon: const Icon(Icons.remove_circle),
+                  label: const Text('Wypisz się z wydarzenia'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity,48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+
+                    ),
+
+                  ),
+
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    onPressed: () => _navigateToEditPage(context),
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Edytuj wydarzenie'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    onPressed: _deleteEvent,
+                    icon: const Icon(Icons.delete),
+                    label: const Text('Usuń wydarzenie'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+              ],
+            ))
+          ),)
+
+          
           
         ],
       ),
