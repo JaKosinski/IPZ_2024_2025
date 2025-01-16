@@ -1,3 +1,5 @@
+import 'package:Hive/pages/home_page.dart';
+import 'package:Hive/pages/registration.dart';
 import 'package:flutter/material.dart';
 import 'pages/sign_in.dart';
 import 'models/event.dart';
@@ -18,7 +20,7 @@ List<Event> testEvents = [
     name: "Walka z Pudzianem",
     location: "Blok 12, osiedle Kaliny",
     type: 'Sportowe',
-    startDate: DateTime(2025, 1, 10, 19, 30),
+    startDate: DateTime(2025, 1, 29, 19, 30),
     maxParticipants: 1,
     registeredParticipants: 0,
     imagePath: "assets/pudzian1.jpg",
@@ -28,7 +30,7 @@ List<Event> testEvents = [
     name: "Przejażdżka z Pudzianem",
     location:"Szczecin, Jezioro Głębokie",
     type: 'Motoryzacyjne',
-    startDate: DateTime(2025, 12, 24),
+    startDate: DateTime(2025, 1, 21),
     maxParticipants: 3,
     registeredParticipants: 1,
     imagePath: "assets/pudzian2.jpg",
@@ -38,7 +40,7 @@ List<Event> testEvents = [
     name: "Trening w Fortnite z Pudzianem",
     location: "Dom Pudziana",
     type: 'Gaming',
-    startDate: DateTime(2025, 10, 21),
+    startDate: DateTime(2025, 1, 31),
     maxParticipants: 5,
     registeredParticipants: 2,
     imagePath: "assets/pudzian3.jpg",
@@ -48,7 +50,7 @@ List<Event> testEvents = [
     name: "Montaż gazu w Lamborghini",
     location: "Szczecin, ul. Santocka",
     type: "Motoryzacyjne",
-    startDate: DateTime(2025, 2, 28),
+    startDate: DateTime(2025, 1, 31),
     maxParticipants: -1,
     registeredParticipants: 0,
     imagePath: "assets/pudzian4.jpg",
@@ -65,13 +67,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Nazwa aplikacji',
+      title: 'Hive',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
         splashFactory: NoSplash.splashFactory,
       ),
-      home: SignInPage(events: testEvents),
+      initialRoute: '/sign_in',
+      routes: {
+        '/sign_in': (context) => SignInPage(events: testEvents),
+        '/register': (context) => RegisterPage(),
+        '/home': (context) => HomePage(events: testEvents)
+
+      },
+      //home: SignInPage(events: testEvents),
     );
   }
 }

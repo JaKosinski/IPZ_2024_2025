@@ -1,9 +1,12 @@
+import 'package:Hive/widgets/event_type_grid.dart';
 import 'package:Hive/pages/event_page.dart';
 import 'package:flutter/material.dart';
+import '../database/database_helper.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart';
 import '../pages/filtered_page.dart';
 import '../pages/new_event_page.dart';
+
 
 
 class HomePage extends StatefulWidget {
@@ -17,15 +20,36 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<Event> _events = [];
   int _selectedFromBottomBar = 0;
   TextEditingController _searchController = TextEditingController();
-  // List<Event> _filteredEvents = [];
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _filteredEvents = widget.events;
-  // }
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllEvents(); // Wywołanie funkcji pobierającej dane
+  }
+
+  // Pobieranie wydarzeń z bazy
+  Future<void> _fetchAllEvents() async {
+    try {
+      final eventsData = await DatabaseHelper.getAllEvents();
+      setState(() {
+        _events = eventsData.map((eventData) => Event(
+          id: eventData['id'] as String,
+          name: eventData['name'] as String,
+          location: eventData['location'] as String,
+          type: eventData['type'] as String,
+          startDate: DateTime.parse(eventData['start_date'] as String),
+          maxParticipants: eventData['max_participants'] as int,
+          registeredParticipants: eventData['registered_participants'] as int,
+          imagePath: eventData['image'] as String,
+        )).toList();
+      });
+    } catch (e) {
+      print('Błąd podczas pobierania danych wydarzeń: $e');
+    }
+  }
 
   void _deleteEvent(Event event) {
   setState(() {
@@ -36,21 +60,20 @@ class _HomePageState extends State<HomePage> {
   /// Funkcja wyszukuje eventy ze słowem kluczowym w nazwie/lokalizacji i otweira filtered page ze znalezionymi wynikami
   /// args:
   ///   String query: hasło kluczowe do wyszukania
-  void _filterEvents(String query) {
+  void _filterEventsByQuery(String query) {
     final filteredEvents = widget.events
       .where((event) =>
         event.name.toLowerCase().contains(query.toLowerCase()) ||
         event.location.toLowerCase().contains(query.toLowerCase()))
       .toList();
 
-// TODO to powinno być sprawdzane w filtered_page ale tam sie jebie
-    if(filteredEvents.isEmpty || query.isEmpty) {
+    if(query.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(
-              query.isEmpty ? 'Pole wyszukania nie może być puste.' : 'Brak wyników dla tego hasła.',
+              'Pole wyszukania nie może być puste.',
               textAlign: TextAlign.center,
             ),
             actions: [
@@ -87,8 +110,37 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _filterEventsByType(String typeFilter) {
+    final filteredEvents = widget.events
+        .where((event) =>
+          event.type.toLowerCase().contains(typeFilter.toLowerCase()))
+        .toList();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (Event ) {  },)) //dodane onUpdate?!
+    );
+  }
+
+  void _filterEventsByDate(DateTime dateFilter) {
+    final filteredEvents = widget.events
+        .where((event) =>
+          event.startDate.year == dateFilter.year &&
+          event.startDate.month == dateFilter.month &&
+          event.startDate.day == dateFilter.day)
+        .toList();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (Event ) {  },), //dodane onUpdate?!
+      ),
+    );
+  }
+
   /// Otwieranie okna dialogowego z wyszukiwaniem
-  void _showSearchDialog() {
+  void _showSearchDialog({bool onlyLocation = false}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -96,21 +148,23 @@ class _HomePageState extends State<HomePage> {
           title: const Text('Wyszukiwanie wydarzeń'),
           content: TextField(
             controller: _searchController,
-            decoration: const InputDecoration(
-              hintText: 'Wprowadź nazwę lub lokalizację'
-            )
+            decoration: InputDecoration(
+              hintText: onlyLocation ? 'Wprowadź lokalizację' : 'Wprowadź nazwę lub lokalizację',
+            ),
           ),
           actions: [
             TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
+                  _searchController.clear();
                 },
                 child: const Icon(Icons.cancel)
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _filterEvents(_searchController.text);
+                _searchController.clear();
+                _filterEventsByQuery(_searchController.text);
               },
               child: const Icon(Icons.search),
             )
@@ -145,15 +199,55 @@ class _HomePageState extends State<HomePage> {
             ),
           );
           break;
-        case 3:
+        case 2:
           showModalBottomSheet(
               context: context,
               builder: (context) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Filtruj po:'),
-
+                    const Text(
+                      'Filtruj po:',
+                      style: const TextStyle(
+                        fontWeight:  FontWeight.bold,
+                      ),
+                    ),
+                    ListTile(
+                      title: const Text('Typ wydarzenia'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return EventTypeGrid(
+                              onEventTypeSelected: (String typeFilter) {
+                                _filterEventsByType(typeFilter);
+                              });
+                          });
+                      }
+                    ),
+                    ListTile(
+                      title: const Text('Data'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        final pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2100),
+                        );
+                        if (pickedDate != null) {
+                          _filterEventsByDate(pickedDate);
+                        }
+                      }
+                    ),
+                    ListTile(
+                      title: const Text('Lokalizacja'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        _showSearchDialog(onlyLocation: true);
+                      }
+                    )
                   ]
                 );
               },
@@ -202,6 +296,7 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
+        // powiem Wam szczerze, że nie wiem co robi połowa z tych właściwości, ale buja z nimi
         elevation: 0,
         enableFeedback: false,
         backgroundColor: Colors.black54,

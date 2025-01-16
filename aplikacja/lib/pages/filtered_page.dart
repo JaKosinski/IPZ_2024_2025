@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import '../models/event.dart';
-import '../widgets/event_card.dart';
+import '../widgets/event_card.dart'; // jeśli używasz EventCard
 
 class FilteredPage extends StatelessWidget {
   final List<Event> filteredEvents;
@@ -17,13 +17,13 @@ class FilteredPage extends StatelessWidget {
         title: const Text('Wyniki wyszukiwania'),
       ),
       body: filteredEvents.isEmpty
-        ? const Center(
-          child: Text(
-            'Brak wyników',
-            style: const TextStyle(fontSize: 18, color: Colors.white),
-          ),
-        )
-      : PageView.builder(
+          ? const Center(
+        child: Text(
+          'Brak wyników',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+      )
+          : PageView.builder(
         scrollDirection: Axis.vertical,
         itemCount: filteredEvents.length,
         itemBuilder: (context, index) {
