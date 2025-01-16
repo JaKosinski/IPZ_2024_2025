@@ -1,8 +1,10 @@
 import 'package:Hive/pages/home_page.dart';
 import 'package:Hive/pages/registration.dart';
 import 'package:flutter/material.dart';
+import 'database/database_helper.dart';
 import 'pages/sign_in.dart';
 import 'models/event.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Obsługa sesji
 
 List<Event> testEvents = [
   Event(
@@ -57,12 +59,34 @@ List<Event> testEvents = [
   )
 ];
 
-void main() {
-  runApp(const MyApp());
+
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token');
+  print(token);
+
+  if (token != null) {
+    try {
+      await DatabaseHelper.verifyToken(token); // Weryfikacja tokenu
+    } catch (e) {
+      // Token jest nieważny, wyloguj użytkownika
+      prefs.remove('token');
+      token = null;
+    }
+  }
+
+  runApp(MyApp(
+    initialRoute: token != null ? '/home' : '/sign_in',
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialRoute; // Dodajemy argument initialRoute
+
+  const MyApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {

@@ -41,10 +41,9 @@ class _SignInPageState extends State<SignInPage> {
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'email': email, 'password': password}),
       );
-
       if (response.statusCode == 200) {
-        final token = json.decode(response.body)['token'];
-        saveToken(token);
+        final token = json.decode(response.body)['token'];r
+        saveToken(token); // Zapisywanie tokenu sesji do pamięci urządzenia
         final userData = json.decode(response.body);
 
         ScaffoldMessenger.of(context).showSnackBar(

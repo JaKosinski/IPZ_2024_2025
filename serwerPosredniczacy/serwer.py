@@ -19,17 +19,12 @@ def register():
     try:
         data = request.get_json()
         nickname = data['nickname']
-        first_name = data['firstName']  # Poprawiona nazwa klucza
-        last_name = data['lastName']  # Poprawiona nazwa klucza
         email = data['email']
         password = data['password']
 
         cursor = mydb.cursor()
-        sql = """
-        INSERT INTO users (nickname, email, password, firstName, lastName) 
-        VALUES (%s, %s, %s, %s, %s)
-        """
-        val = (nickname, email, password, first_name, last_name)
+        sql = "INSERT INTO users (nickname, email, password) VALUES (%s, %s, %s)"
+        val = (nickname, email, password)
         cursor.execute(sql, val)
         mydb.commit()
 
@@ -67,6 +62,29 @@ def login():
             return jsonify({'message': 'Nieprawidłowy email lub hasło'}), 401
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/verify_token', methods=['GET'])
+def verify_token():
+    token = request.headers.get('Authorization')
+    if token:
+        # 1. Pobierz token z nagłówka Authorization
+        token = token.split(" ")[1]  # Usuń prefix "Bearer "
+
+        # 2. Sprawdź, czy token istnieje w bazie danych
+        cursor = mydb.cursor(dictionary=True)
+        sql = "SELECT * FROM users WHERE token = %s"
+        val = (token,)
+        cursor.execute(sql, val)
+        user = cursor.fetchone()
+
+        if user:
+            # Token jest ważny
+            return jsonify({'message': 'Token jest ważny'}), 200
+        else:
+            # Token jest nieważny
+            return jsonify({'message': 'Token jest nieważny'}), 401
+    else:
+        return jsonify({'message': 'Brak tokenu'}), 401
 
 @app.route('/events', methods=['POST'])
 def add_event():
