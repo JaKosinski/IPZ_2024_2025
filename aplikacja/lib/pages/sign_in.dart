@@ -42,7 +42,7 @@ class _SignInPageState extends State<SignInPage> {
         body: json.encode({'email': email, 'password': password}),
       );
       if (response.statusCode == 200) {
-        final token = json.decode(response.body)['token'];r
+        final token = json.decode(response.body)['token'];
         saveToken(token); // Zapisywanie tokenu sesji do pamięci urządzenia
         final userData = json.decode(response.body);
 

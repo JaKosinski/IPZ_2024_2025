@@ -148,6 +148,30 @@ def delete_event(event_id):
         return jsonify({'message': 'Wydarzenie usunięte pomyślnie'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/delete_account', methods=['DELETE'])
+def delete_account():
+    token = request.headers.get('Authorization')
+    if token:
+        token = token.split(" ")[1]  # Usuń prefix "Bearer "
+        cursor = mydb.cursor()
+        
+        # Pobierz użytkownika na podstawie tokenu
+        sql_select = "SELECT id FROM users WHERE token = %s"
+        cursor.execute(sql_select, (token,))
+        user = cursor.fetchone()
+        
+        if user:
+            user_id = user[0]
+            sql_delete = "DELETE FROM users WHERE id = %s"
+            cursor.execute(sql_delete, (user_id,))
+            mydb.commit()
+            return jsonify({'message': 'Konto zostało usunięte'}), 200
+        else:
+            return jsonify({'error': 'Nieprawidłowy token'}), 401
+    else:
+        return jsonify({'error': 'Brak tokenu'}), 401
+
 
 @app.route('/events', methods=['GET'])
 def get_all_events():
