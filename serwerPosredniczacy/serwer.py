@@ -7,7 +7,7 @@ CORS(app)
 
 # Konfiguracja połączenia z bazą danych
 mydb = mysql.connector.connect(
-  host="localhost",  # Zmień na adres IP komputera, jeśli to konieczne
+  host="localhost",
   user="root",
   password="",
   database="projektIPZ"
@@ -17,19 +17,20 @@ mydb = mysql.connector.connect(
 def register():
     try:
         data = request.get_json()
+        nickname = data['nickname']
         email = data['email']
         password = data['password']
 
         cursor = mydb.cursor()
-        sql = "INSERT INTO users (email, password) VALUES (%s, %s)"
-        val = (email, password)
+        sql = "INSERT INTO users (nickname, email, password) VALUES (%s, %s, %s)"
+        val = (nickname, email, password)
         cursor.execute(sql, val)
         mydb.commit()
 
         return jsonify({'message': 'Użytkownik zarejestrowany'}), 201
     except mysql.connector.Error as err:
         if err.errno == 1062:  # Duplicate entry error
-            return jsonify({'error': 'Użytkownik o podanym adresie email już istnieje'}), 409
+            return jsonify({'error': 'Taki użytkownik już istnieje'}), 409
         else:
             return jsonify({'error': str(err)}), 500
 
