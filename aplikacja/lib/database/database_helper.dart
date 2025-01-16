@@ -53,6 +53,23 @@ class DatabaseHelper {
       throw Exception(error);
     }
   }
+
+  static Future<void> verifyToken(String token) async {
+    final url = Uri.parse('$link/verify_token'); // Zakładając, że endpoint to '/verify_token'
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      // Token jest ważny
+      print('Token jest ważny');
+    } else {
+      // Token jest nieważny
+      print('Token jest nieważny');
+      throw Exception('Token jest nieważny'); // Możesz obsłużyć błąd w inny sposób
+    }
+  }
   // Dodawanie wydarzeń
   static Future<void> addEvent(Map<String, dynamic> eventData) async {
     final url = Uri.parse('$link/events');
