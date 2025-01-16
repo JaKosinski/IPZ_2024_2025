@@ -148,4 +148,20 @@ class DatabaseHelper {
     }
   }
 
+  static Future<void> deleteAccount(String token) async {
+  final url = Uri.parse('$link/delete_account');
+  final response = await http.delete(
+    url,
+    headers: {'Authorization': 'Bearer $token'},
+  );
+
+  if (response.statusCode == 200) {
+    print('Konto zostało usunięte');
+  } else {
+    final error = jsonDecode(response.body)['error'];
+    throw Exception(error);
+  }
+}
+
+
 }
