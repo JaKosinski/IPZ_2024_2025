@@ -1,16 +1,17 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
+import secrets
 
 app = Flask(__name__)
 CORS(app)
 
 # Konfiguracja połączenia z bazą danych
 mydb = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password="",
-  database="projektIPZ"
+    host="localhost",
+    user="root",
+    password="",
+    database="projektIPZ"
 )
 
 @app.route('/register', methods=['POST'])
@@ -18,12 +19,17 @@ def register():
     try:
         data = request.get_json()
         nickname = data['nickname']
+        first_name = data['firstName']  # Poprawiona nazwa klucza
+        last_name = data['lastName']  # Poprawiona nazwa klucza
         email = data['email']
         password = data['password']
 
         cursor = mydb.cursor()
-        sql = "INSERT INTO users (nickname, email, password) VALUES (%s, %s, %s)"
-        val = (nickname, email, password)
+        sql = """
+        INSERT INTO users (nickname, email, password, firstName, lastName) 
+        VALUES (%s, %s, %s, %s, %s)
+        """
+        val = (nickname, email, password, first_name, last_name)
         cursor.execute(sql, val)
         mydb.commit()
 
@@ -48,7 +54,15 @@ def login():
         user = cursor.fetchone()
 
         if user:
-            return jsonify({'message': 'Zalogowano pomyślnie', 'user': user}), 200
+            # Generowanie tokenu dla zalogowanego użytkownika
+            token = secrets.token_urlsafe(32)
+            update_sql = "UPDATE users SET token = %s WHERE email = %s"
+            update_val = (token, user['email'])
+            cursor.execute(update_sql, update_val)
+            mydb.commit()
+
+            # Zwracamy token w odpowiedzi
+            return jsonify({'message': 'Zalogowano pomyślnie', 'user': user, 'token': token}), 200
         else:
             return jsonify({'message': 'Nieprawidłowy email lub hasło'}), 401
     except Exception as e:

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'home_page.dart';
 import '../models/event.dart';
 import 'registration.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Obsługa sesji użytkownika
 
 class SignInPage extends StatefulWidget {
   final List<Event> events;
@@ -18,6 +19,11 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController _loginController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+
+  Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+  }
   Future<void> _signIn() async {
     final email = _loginController.text;
     final password = _passwordController.text;
@@ -37,6 +43,8 @@ class _SignInPageState extends State<SignInPage> {
       );
 
       if (response.statusCode == 200) {
+        final token = json.decode(response.body)['token'];
+        saveToken(token);
         final userData = json.decode(response.body);
 
         ScaffoldMessenger.of(context).showSnackBar(
