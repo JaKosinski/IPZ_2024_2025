@@ -3,7 +3,9 @@ import 'package:Hive/pages/registration.dart';
 import 'package:flutter/material.dart';
 import 'pages/sign_in.dart';
 import 'models/event.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Obsługa sesji
 import 'pages/profile_page.dart';
+
 
 List<Event> testEvents = [
   Event(
