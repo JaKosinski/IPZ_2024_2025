@@ -6,6 +6,9 @@ import 'pages/sign_in.dart';
 import 'models/event.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Obsługa sesji
 
+
+
+
 List<Event> testEvents = [
   Event(
     id: "0",
@@ -101,7 +104,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/sign_in': (context) => SignInPage(events: testEvents),
         '/register': (context) => RegisterPage(),
-        '/home': (context) => HomePage(events: testEvents)
+        '/home': (context) => HomePage(events: testEvents),
+        
 
       },
       //home: SignInPage(events: testEvents),

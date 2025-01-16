@@ -34,7 +34,8 @@ def register():
             return jsonify({'error': 'Taki użytkownik już istnieje'}), 409
         else:
             return jsonify({'error': str(err)}), 500
-
+        
+        
 @app.route('/login', methods=['POST'])
 def login():
     try:
