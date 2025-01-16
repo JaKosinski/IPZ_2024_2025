@@ -54,5 +54,67 @@ def login():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/events', methods=['POST'])
+def add_event():
+    try:
+        data = request.get_json()
+        cursor = mydb.cursor()
+        sql = """
+        INSERT INTO Events (id, name, location, type, start_date, max_participants, registered_participants, image)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        val = (
+            data['id'],
+            data['name'],
+            data['location'],
+            data['type'],
+            data['start_date'],
+            data['max_participants'],
+            data['registered_participants'],
+            data['image'],
+        )
+        cursor.execute(sql, val)
+        mydb.commit()
+        return jsonify({'message': 'Wydarzenie dodane pomyślnie'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/events/<event_id>', methods=['PUT'])
+def update_event(event_id):
+    try:
+        data = request.get_json()
+        cursor = mydb.cursor()
+        sql = """
+        UPDATE Events
+        SET name = %s, location = %s, type = %s, start_date = %s, max_participants = %s, registered_participants = %s, image = %s
+        WHERE id = %s
+        """
+        val = (
+            data['name'],
+            data['location'],
+            data['type'],
+            data['start_date'],
+            data['max_participants'],
+            data['registered_participants'],
+            data['image'],
+            event_id
+        )
+        cursor.execute(sql, val)
+        mydb.commit()
+        return jsonify({'message': 'Wydarzenie zaktualizowane pomyślnie'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/events/<event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    try:
+        cursor = mydb.cursor()
+        sql = "DELETE FROM Events WHERE id = %s"
+        cursor.execute(sql, (event_id,))
+        mydb.commit()
+        return jsonify({'message': 'Wydarzenie usunięte pomyślnie'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)

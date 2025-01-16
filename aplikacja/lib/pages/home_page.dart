@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => FilteredPage(filteredEvents: filteredEvents))
+          builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (Event ) {  },)) //dodane onUpdate?!
     );
   }
 
@@ -98,7 +98,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => FilteredPage(filteredEvents: filteredEvents),
+          builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (Event ) {  },), //dodane onUpdate?!
       ),
     );
   }
