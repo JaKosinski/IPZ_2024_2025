@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import '../database/database_helper.dart';
 import '../models/event.dart';
 import '../styles/gradients.dart';
 import '../pages/edit_event_page.dart';
-
 
 // to kiedyś trzeba będzie zmienić na stateful być może jak będziemy chcieli robić dołączanie już
 // ja chcę zrobić już wygląd, później nie będzie dużo zmian
@@ -18,41 +16,14 @@ class EventPage extends StatefulWidget {
   _EventPageState createState() => _EventPageState();
 }
 
-
 class _EventPageState extends State<EventPage>{
-
-
   late Event _currentEvent; //aktualne wydarzenie
 
   @override
-  void initState() {
+  void initState()
+  {
     super.initState();
-    _fetchEventData(); // Pobieramy dane z bazy
-  }
-
-  Future<void> _fetchEventData() async {
-    try {
-      final eventData = await DatabaseHelper.getEvent(widget.event as String); // Pobieramy dane z bazy
-      if (eventData != null) {
-        setState(() {
-          _currentEvent = Event(
-            id: eventData['id'],
-            name: eventData['name'],
-            location: eventData['location'],
-            type: eventData['type'],
-            startDate: DateTime.parse(eventData['start_date']), // Parsujemy datę z ISO 8601
-            maxParticipants: eventData['max_participants'],
-            registeredParticipants: eventData['registered_participants'],
-            imagePath: eventData['image'],
-          );
-        });
-      } else {
-        // Obsłuż przypadek, gdy wydarzenie nie zostało znalezione
-        print('Nie znaleziono wydarzenia o podanym ID');
-      }
-    } catch (e) {
-      print('Błąd podczas pobierania danych wydarzenia: $e');
-    }
+    _currentEvent = widget.event; //inicjuje stan z początkowego wydarzenia
   }
 
   void _updateEvent(Event updatedEvent)

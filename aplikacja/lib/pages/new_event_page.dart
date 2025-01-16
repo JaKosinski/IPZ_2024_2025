@@ -5,6 +5,8 @@ import 'package:path_provider/path_provider.dart';
 import '../models/event.dart';
 import '../widgets/event_type_grid.dart';
 import 'dart:io';
+import 'dart:convert'; // Dodaj import dla kodowania Base64
+import 'dart:io'; // Import dla obsługi plików
 
 class CreateEventPage extends StatefulWidget {
   final Function(Event) onEventCreated;
