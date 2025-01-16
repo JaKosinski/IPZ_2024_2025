@@ -112,4 +112,23 @@ class DatabaseHelper {
     }
   }
 
+  // Pobieranie wszystkich wydarzeń
+  static Future<List<Map<String, dynamic>>> getAllEvents([String? userId]) async {
+    var url = Uri.parse('$link/events');
+
+    if (userId != null) {
+      url = url.replace(queryParameters: {'userId': userId});
+    }
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List<dynamic>;
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      final error = jsonDecode(response.body)['message'];
+      throw Exception(error);
+    }
+  }
+
 }

@@ -116,5 +116,21 @@ def delete_event(event_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/events', methods=['GET'])
+def get_all_events():
+    try:
+        cursor = mydb.cursor(dictionary=True)
+        sql = "SELECT * FROM Events"
+        cursor.execute(sql)
+        events = cursor.fetchall()
+
+        # Konwersja datetime na string
+        for event in events:
+            event['start_date'] = event['start_date'].strftime('%Y-%m-%d %H:%M:%S')
+
+        return jsonify(events), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)
