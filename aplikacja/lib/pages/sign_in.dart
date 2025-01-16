@@ -1,11 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'home_page.dart';
 import '../models/event.dart';
 import 'registration.dart';
 
-
 class SignInPage extends StatefulWidget {
-  final List<Event> events; // to chyba nie powinno być final, ale dla sprawdzenia rolek będzie
+  final List<Event> events;
 
   const SignInPage({Key? key, required this.events}) : super(key: key);
 
@@ -17,14 +18,51 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController _loginController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _signIn() {
-    // TODO logika autoryzacji; narazie tylko przekierowanie do homepage
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
+  Future<void> _signIn() async {
+    final email = _loginController.text;
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Wprowadź email i hasło')),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:5000/login'), // Zmień na odpowiedni adres serwera
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'email': email, 'password': password}),
+      );
+
+      if (response.statusCode == 200) {
+        final userData = json.decode(response.body);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Zalogowano pomyślnie')),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
             builder: (context) => HomePage(events: widget.events),
-        ),
-    );
+          ),
+        );
+      } else if (response.statusCode == 401) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nieprawidłowe dane logowania')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Błąd serwera: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Błąd połączenia: $e')),
+      );
+    }
   }
 
   @override
@@ -38,7 +76,7 @@ class _SignInPageState extends State<SignInPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Zaloguj się do aplikacji',
+              'Zaloguj się',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 50.0),
             ),
@@ -49,28 +87,20 @@ class _SignInPageState extends State<SignInPage> {
                 controller: _loginController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: 'Login',
+                  labelText: 'Email',
                 ),
-                onSubmitted: (value) {
-                  // TODO logika przyjmowania loginu
-                  print("Login: $value");
-                }
-              )
+              ),
             ),
             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 5.0),
-                child: TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Hasło',
-                    ),
-                    onSubmitted: (value) {
-                      // TODO logika przyjmowania hasła
-                      print("Hasło: $value");
-                    }
-                )
+              padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 5.0),
+              child: TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Hasło',
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -86,10 +116,9 @@ class _SignInPageState extends State<SignInPage> {
               padding: const EdgeInsets.symmetric(vertical: 5.0),
               child: ElevatedButton(
                 onPressed: () {
-                  // Funkcja przekierowania do ekranu rejestracji
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => RegisterPage()),
+                    MaterialPageRoute(builder: (context) => const RegisterPage()),
                   );
                 },
                 child: const Text(

@@ -1,15 +1,15 @@
 import "package:flutter/material.dart";
 import '../models/event.dart';
 import '../pages/event_page.dart';
-import '../utils/tools.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;
   final int dateDiffrence;
+  final Function(Event) onUpdate; //metoda do aktualizacji strony
 
   EventCard({
-    super.key, required this.event
-  }) : dateDiffrence = DateTime.now()
+    super.key, required this.event, required this.onUpdate,
+  }) : dateDiffrence = -DateTime.now()
           .difference(DateTime(event.startDate.year, event.startDate.month, event.startDate.day))
           .inDays;
 
@@ -20,7 +20,7 @@ class EventCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => EventPage(event: event)
+              builder: (context) => EventPage(event: event,onUpdate: onUpdate,)
           ),
         );
       },

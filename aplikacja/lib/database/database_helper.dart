@@ -20,12 +20,12 @@ class DatabaseHelper {
     );
     return await MySqlConnection.connect(settings);
   }
-  static Future<void> addUser(String email, String password) async {
+  static Future<void> addUser(String nickname, String email, String password) async {
     final url = Uri.parse('http://127.0.0.1:5000/register');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
+      body: jsonEncode({'nickname': nickname,'email': email, 'password': password}),
     );
 
     if (response.statusCode == 201) {
