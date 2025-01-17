@@ -195,6 +195,29 @@ def change_password():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/verify_password', methods=['POST'])
+def verify_password():
+    try:
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'error': 'Brak tokenu'}), 401
+
+        token = token.split(" ")[1]  # Usuń prefix "Bearer "
+        data = request.get_json()
+        password = data['password']
+
+        cursor = mydb.cursor(dictionary=True)
+        sql = "SELECT password FROM users WHERE token = %s"
+        cursor.execute(sql, (token,))
+        user = cursor.fetchone()
+
+        if not user or user['password'] != password:
+            return jsonify({'error': 'Nieprawidłowe hasło'}), 401
+
+        return jsonify({'message': 'Hasło poprawne'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 
 @app.route('/events', methods=['GET'])
