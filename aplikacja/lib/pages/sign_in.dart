@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../database/database_helper.dart';
 import 'home_page.dart';
 import '../models/event.dart';
 import 'registration.dart';
@@ -37,33 +38,27 @@ class _SignInPageState extends State<SignInPage> {
     }
 
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:5000/login'), // Zmień na odpowiedni adres serwera
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'email': email, 'password': password}),
-      );
-      if (response.statusCode == 200) {
-        final token = json.decode(response.body)['token'];
-        saveToken(token); // Zapisywanie tokenu sesji do pamięci urządzenia
-        final userData = json.decode(response.body);
+      // Wywołanie metody z DatabaseHelper
+      final userData = await DatabaseHelper.getUser(email, password);
+
+      if (userData != null) {
+        final token = userData['token'];
+        saveToken(token); // Zapis tokenu sesji
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Zalogowano pomyślnie')),
         );
 
+        // Przejście do strony głównej
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => HomePage(events: widget.events),
           ),
         );
-      } else if (response.statusCode == 401) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nieprawidłowe dane logowania')),
-        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Błąd serwera: ${response.statusCode}')),
+          const SnackBar(content: Text('Nieprawidłowe dane logowania')),
         );
       }
     } catch (e) {

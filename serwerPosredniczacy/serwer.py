@@ -1,17 +1,19 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
-import secrets
+from dotenv import load_dotenv
+import os
+
 
 app = Flask(__name__)
 CORS(app)
 
 # Konfiguracja połączenia z bazą danych
 mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="",
-    database="projektIPZ"
+    host="212.127.78.92",
+    user="user",
+    password="password",
+    database="userDatabase"
 )
 
 @app.route('/register', methods=['POST'])
@@ -62,16 +64,15 @@ def login():
         else:
             return jsonify({'message': 'Nieprawidłowy email lub hasło'}), 401
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/verify_token', methods=['GET'])
 def verify_token():
     token = request.headers.get('Authorization')
     if token:
-        # 1. Pobierz token z nagłówka Authorization
         token = token.split(" ")[1]  # Usuń prefix "Bearer "
 
-        # 2. Sprawdź, czy token istnieje w bazie danych
         cursor = mydb.cursor(dictionary=True)
         sql = "SELECT * FROM users WHERE token = %s"
         val = (token,)
@@ -237,4 +238,4 @@ def get_all_events():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
