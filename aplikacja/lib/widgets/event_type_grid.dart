@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class EventTypeGrid extends StatelessWidget {
   final void Function(String) onEventTypeSelected;
 
-  EventTypeGrid({required this.onEventTypeSelected});
+  EventTypeGrid({super.key, required this.onEventTypeSelected});
 
   final List<Map<String, String>> eventTypes = [
     {'type': 'Domówka', 'icon': 'assets/icons/icon_placeholder.png'},

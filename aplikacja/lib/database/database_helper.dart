@@ -53,6 +53,23 @@ class DatabaseHelper {
       throw Exception(error);
     }
   }
+
+  static Future<void> verifyToken(String token) async {
+    final url = Uri.parse('$link/verify_token'); // Zakładając, że endpoint to '/verify_token'
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      // Token jest ważny
+      print('Token jest ważny');
+    } else {
+      // Token jest nieważny
+      print('Token jest nieważny');
+      throw Exception('Token jest nieważny'); // Możesz obsłużyć błąd w inny sposób
+    }
+  }
   // Dodawanie wydarzeń
   static Future<void> addEvent(Map<String, dynamic> eventData) async {
     final url = Uri.parse('$link/events');
@@ -131,5 +148,42 @@ class DatabaseHelper {
     }
   }
   
+
+  static Future<void> deleteAccount(String token) async {
+  final url = Uri.parse('$link/delete_account');
+  final response = await http.delete(
+    url,
+    headers: {'Authorization': 'Bearer $token'},
+  );
+
+  if (response.statusCode == 200) {
+    print('Konto zostało usunięte');
+  } else {
+    final error = jsonDecode(response.body)['error'];
+    throw Exception(error);
+  }
+}
+
+static Future<bool> verifyPassword(String token, String password) async {
+  final url = Uri.parse('$link/verify_password');
+  final response = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+    body: json.encode({'password': password}),
+  );
+
+  if (response.statusCode == 200) {
+    return true; // Hasło jest poprawne
+  } else if (response.statusCode == 401) {
+    return false; // Nieprawidłowe hasło
+  } else {
+    throw Exception('Błąd serwera: ${response.statusCode}');
+  }
+}
+
+
 
 }
