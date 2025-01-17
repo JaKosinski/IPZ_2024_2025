@@ -148,4 +148,41 @@ class DatabaseHelper {
     }
   }
 
+  static Future<void> deleteAccount(String token) async {
+  final url = Uri.parse('$link/delete_account');
+  final response = await http.delete(
+    url,
+    headers: {'Authorization': 'Bearer $token'},
+  );
+
+  if (response.statusCode == 200) {
+    print('Konto zostało usunięte');
+  } else {
+    final error = jsonDecode(response.body)['error'];
+    throw Exception(error);
+  }
+}
+
+static Future<bool> verifyPassword(String token, String password) async {
+  final url = Uri.parse('$link/verify_password');
+  final response = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+    body: json.encode({'password': password}),
+  );
+
+  if (response.statusCode == 200) {
+    return true; // Hasło jest poprawne
+  } else if (response.statusCode == 401) {
+    return false; // Nieprawidłowe hasło
+  } else {
+    throw Exception('Błąd serwera: ${response.statusCode}');
+  }
+}
+
+
+
 }

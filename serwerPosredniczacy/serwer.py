@@ -34,7 +34,8 @@ def register():
             return jsonify({'error': 'Taki użytkownik już istnieje'}), 409
         else:
             return jsonify({'error': str(err)}), 500
-
+        
+        
 @app.route('/login', methods=['POST'])
 def login():
     try:
@@ -147,6 +148,77 @@ def delete_event(event_id):
         return jsonify({'message': 'Wydarzenie usunięte pomyślnie'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/delete_account', methods=['DELETE'])
+def delete_account():
+    token = request.headers.get('Authorization')
+    if token:
+        token = token.split(" ")[1]  # Usuń prefix "Bearer "
+        cursor = mydb.cursor()
+        
+        # Pobierz użytkownika na podstawie tokenu
+        sql_select = "SELECT id FROM users WHERE token = %s"
+        cursor.execute(sql_select, (token,))
+        user = cursor.fetchone()
+        
+        if user:
+            user_id = user[0]
+            sql_delete = "DELETE FROM users WHERE id = %s"
+            cursor.execute(sql_delete, (user_id,))
+            mydb.commit()
+            return jsonify({'message': 'Konto zostało usunięte'}), 200
+        else:
+            return jsonify({'error': 'Nieprawidłowy token'}), 401
+    else:
+        return jsonify({'error': 'Brak tokenu'}), 401
+    
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    try:
+        data = request.get_json()
+        email = data['email']
+        new_password = data['new_password']
+
+        cursor = mydb.cursor()
+        sql_check = "SELECT id FROM users WHERE email = %s"
+        cursor.execute(sql_check, (email,))
+        user = cursor.fetchone()
+
+        if not user:
+            return jsonify({'error': 'Użytkownik o podanym emailu nie istnieje'}), 404
+
+        sql_update = "UPDATE users SET password = %s WHERE email = %s"
+        cursor.execute(sql_update, (new_password, email))
+        mydb.commit()
+
+        return jsonify({'message': 'Hasło zostało zmienione'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/verify_password', methods=['POST'])
+def verify_password():
+    try:
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'error': 'Brak tokenu'}), 401
+
+        token = token.split(" ")[1]  # Usuń prefix "Bearer "
+        data = request.get_json()
+        password = data['password']
+
+        cursor = mydb.cursor(dictionary=True)
+        sql = "SELECT password FROM users WHERE token = %s"
+        cursor.execute(sql, (token,))
+        user = cursor.fetchone()
+
+        if not user or user['password'] != password:
+            return jsonify({'error': 'Nieprawidłowe hasło'}), 401
+
+        return jsonify({'message': 'Hasło poprawne'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 @app.route('/events', methods=['GET'])
 def get_all_events():

@@ -9,6 +9,7 @@
 /// pogaduchy
 /// gaming
 ///
+library;
 
 class Event {
   final String id;                  // Unikalny identyfikator

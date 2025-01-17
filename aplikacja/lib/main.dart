@@ -5,6 +5,13 @@ import 'database/database_helper.dart';
 import 'pages/sign_in.dart';
 import 'models/event.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Obsługa sesji
+import 'pages/profile_page.dart';
+import 'pages/settings_page.dart';
+import 'pages/password_change_page.dart';
+
+
+
+
 
 List<Event> testEvents = [
   Event(
@@ -101,7 +108,11 @@ class MyApp extends StatelessWidget {
       routes: {
         '/sign_in': (context) => SignInPage(events: testEvents),
         '/register': (context) => RegisterPage(),
-        '/home': (context) => HomePage(events: testEvents)
+        '/home': (context) => HomePage(events: testEvents),
+        '/account': (context) => ProfilePage(),
+        '/settings': (context) => SettingsPage(),
+        '/change_password': (context) => PasswordChangePage(),
+        
 
       },
       //home: SignInPage(events: testEvents),

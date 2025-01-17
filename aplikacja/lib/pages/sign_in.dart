@@ -5,6 +5,7 @@ import 'home_page.dart';
 import '../models/event.dart';
 import 'registration.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Obsługa sesji użytkownika
+import 'password_change_page.dart';
 
 class SignInPage extends StatefulWidget {
   final List<Event> events;
@@ -42,7 +43,7 @@ class _SignInPageState extends State<SignInPage> {
         body: json.encode({'email': email, 'password': password}),
       );
       if (response.statusCode == 200) {
-        final token = json.decode(response.body)['token'];r
+        final token = json.decode(response.body)['token'];
         saveToken(token); // Zapisywanie tokenu sesji do pamięci urządzenia
         final userData = json.decode(response.body);
 
@@ -110,6 +111,22 @@ class _SignInPageState extends State<SignInPage> {
               ),
             ),
             Padding(
+  padding: const EdgeInsets.symmetric(vertical: 5.0),
+  child: TextButton(
+    onPressed: () {
+      Navigator.pushNamed(context, '/change_password'); // Przejście do widoku zmiany hasła
+    },
+    child: const Text(
+      'Nie pamiętam hasła',
+      style: TextStyle(
+        fontSize: 16.0,
+        color: Colors.blue,
+      ),
+    ),
+  ),
+),
+
+            Padding(
               padding: const EdgeInsets.symmetric(vertical: 5.0),
               child: ElevatedButton(
                 onPressed: _signIn,
@@ -134,6 +151,8 @@ class _SignInPageState extends State<SignInPage> {
                 ),
               ),
             ),
+            
+
           ],
         ),
       ),
