@@ -1,3 +1,5 @@
+import smtplib
+from email.mime.text import MIMEText
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
@@ -5,6 +7,7 @@ import secrets
 from dotenv import load_dotenv
 import os
 
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -13,9 +16,13 @@ CORS(app)
 mydb = mysql.connector.connect(
     host="212.127.78.92",
     user="user",
-    password="password",
-    database="userDatabase"
+    password="ipz2137",
+    database="userDatabase",
+    auth_plugin="mysql_native_password"
 )
+
+MAIL_USERNAME = "ipezet2025@gmail.com"
+MAIL_PASSWORD = "gpky wyzr vkef wzid"
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -26,19 +33,65 @@ def register():
         password = data['password']
 
         cursor = mydb.cursor()
-        sql = "INSERT INTO users (nickname, email, password) VALUES (%s, %s, %s)"
-        val = (nickname, email, password)
+        # Generowanie unikalnego tokenu weryfikacyjnego
+        verification_token = secrets.token_urlsafe(32)
+
+        sql = """
+        INSERT INTO users (nickname, email, password, is_verified, verification_token)
+        VALUES (%s, %s, %s, %s, %s)
+        """
+        val = (nickname, email, password, 0, verification_token)
         cursor.execute(sql, val)
         mydb.commit()
 
-        return jsonify({'message': 'Użytkownik zarejestrowany'}), 201
+        # Wysyłanie e-maila weryfikacyjnego
+        verification_link = f"http://localhost:5000/verify_email?token={verification_token}"
+        msg = MIMEText(f"Kliknij poniższy link, aby zweryfikować swój adres e-mail:\n{verification_link}")
+        msg['Subject'] = "Weryfikacja adresu e-mail"
+        msg['From'] = MAIL_USERNAME
+        msg['To'] = email
+
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(MAIL_USERNAME, MAIL_PASSWORD)
+            server.send_message(msg)
+            server.quit()
+        except Exception as e:
+            return jsonify({'error': f"Nie udało się wysłać e-maila: {str(e)}"}), 500
+
+        return jsonify({'message': 'Użytkownik zarejestrowany. Sprawdź swoją skrzynkę e-mail, aby zweryfikować konto.'}), 201
     except mysql.connector.Error as err:
         if err.errno == 1062:  # Duplicate entry error
             return jsonify({'error': 'Taki użytkownik już istnieje'}), 409
         else:
             return jsonify({'error': str(err)}), 500
-        
-        
+
+@app.route('/verify_email', methods=['GET'])
+def verify_email():
+    token = request.args.get('token')
+
+    if not token:
+        return jsonify({'error': 'Brak tokenu weryfikacyjnego'}), 400
+
+    try:
+        cursor = mydb.cursor()
+        # Weryfikacja tokenu i aktualizacja pola is_verified
+        sql = "SELECT id FROM users WHERE verification_token = %s"
+        cursor.execute(sql, (token,))
+        user = cursor.fetchone()
+
+        if not user:
+            return jsonify({'error': 'Nieprawidłowy token weryfikacyjny'}), 400
+
+        update_sql = "UPDATE users SET is_verified = 1, verification_token = NULL WHERE id = %s"
+        cursor.execute(update_sql, (user[0],))
+        mydb.commit()
+
+        return jsonify({'message': 'E-mail został zweryfikowany pomyślnie'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/login', methods=['POST'])
 def login():
     try:
@@ -53,6 +106,8 @@ def login():
         user = cursor.fetchone()
 
         if user:
+            if user['is_verified'] == 0:
+                return jsonify({'message': 'Adres e-mail nie został zweryfikowany'}), 403
             # Generowanie tokenu dla zalogowanego użytkownika
             token = secrets.token_urlsafe(32)
             update_sql = "UPDATE users SET token = %s WHERE email = %s"
@@ -150,19 +205,19 @@ def delete_event(event_id):
         return jsonify({'message': 'Wydarzenie usunięte pomyślnie'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
+
 @app.route('/delete_account', methods=['DELETE'])
 def delete_account():
     token = request.headers.get('Authorization')
     if token:
         token = token.split(" ")[1]  # Usuń prefix "Bearer "
         cursor = mydb.cursor()
-        
+
         # Pobierz użytkownika na podstawie tokenu
         sql_select = "SELECT id FROM users WHERE token = %s"
         cursor.execute(sql_select, (token,))
         user = cursor.fetchone()
-        
+
         if user:
             user_id = user[0]
             sql_delete = "DELETE FROM users WHERE id = %s"
@@ -173,7 +228,7 @@ def delete_account():
             return jsonify({'error': 'Nieprawidłowy token'}), 401
     else:
         return jsonify({'error': 'Brak tokenu'}), 401
-    
+
 @app.route('/change_password', methods=['POST'])
 def change_password():
     try:
@@ -219,8 +274,6 @@ def verify_password():
         return jsonify({'message': 'Hasło poprawne'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
 
 @app.route('/events', methods=['GET'])
 def get_all_events():
