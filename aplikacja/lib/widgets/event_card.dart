@@ -2,12 +2,17 @@ import "package:flutter/material.dart";
 import '../models/event.dart';
 import '../pages/event_page.dart';
 
-// być może jak chcemy dać przyciski tutaj to tez stateful, dopiero zrozumiałem
-// różnicę między less a ful
 class EventCard extends StatelessWidget {
   final Event event;
+  final int dateDiffrence;
+  final Function(Event) onUpdate; //metoda do aktualizacji strony
+  final Function(Event) onDelete;
 
-  const EventCard({Key? key, required this.event}) : super(key: key);
+  EventCard( {
+    super.key, required this.event, required this.onUpdate, required this.onDelete,
+  }) : dateDiffrence = -DateTime.now()
+          .difference(DateTime(event.startDate.year, event.startDate.month, event.startDate.day))
+          .inDays;
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +21,11 @@ class EventCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => EventPage(event: event)
+              builder: (context) => EventPage(event: event,onUpdate: onUpdate,onDelete: onDelete,)
           ),
         );
-      }, child: Stack(
+      },
+      child: Stack(
       fit: StackFit.expand,
       children: [
         // Obrazek, tło
@@ -55,12 +61,19 @@ class EventCard extends StatelessWidget {
                 ),
               ),
               Text(
-                event.location,
+              '${event.registeredParticipants}/${event.maxParticipants} uczestników',
+              style: const TextStyle(fontSize: 16, color: Colors.white70),
+              ),
+              Text(
+                dateDiffrence <= 0 ?
+                    'Dzisiaj  |  ${event.location}'
+                    : 'Za $dateDiffrence dni  |  ${event.location}',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.white70,
                 ),
               ),
+             
               const SizedBox(height: 10),
               Text(
                 "ID: ${event.id}",
@@ -69,9 +82,11 @@ class EventCard extends StatelessWidget {
                   color: Colors.blueAccent,
                 ),
               ),
+            
             ],
           ),
         ),
+       
       ],
     ),
     );
