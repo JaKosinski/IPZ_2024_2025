@@ -7,6 +7,7 @@ import 'models/event.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Obsługa sesji
 import 'pages/profile_page.dart';
 import 'pages/settings_page.dart';
+import 'pages/password_change_page.dart';
 
 
 
@@ -109,7 +110,8 @@ class MyApp extends StatelessWidget {
         '/register': (context) => RegisterPage(),
         '/home': (context) => HomePage(events: testEvents),
         '/account': (context) => ProfilePage(),
-        '/settings': (context) => SettingsPage()
+        '/settings': (context) => SettingsPage(),
+        '/change_password': (context) => PasswordChangePage(),
         
 
       },

@@ -171,6 +171,30 @@ def delete_account():
             return jsonify({'error': 'Nieprawidłowy token'}), 401
     else:
         return jsonify({'error': 'Brak tokenu'}), 401
+    
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    try:
+        data = request.get_json()
+        email = data['email']
+        new_password = data['new_password']
+
+        cursor = mydb.cursor()
+        sql_check = "SELECT id FROM users WHERE email = %s"
+        cursor.execute(sql_check, (email,))
+        user = cursor.fetchone()
+
+        if not user:
+            return jsonify({'error': 'Użytkownik o podanym emailu nie istnieje'}), 404
+
+        sql_update = "UPDATE users SET password = %s WHERE email = %s"
+        cursor.execute(sql_update, (new_password, email))
+        mydb.commit()
+
+        return jsonify({'message': 'Hasło zostało zmienione'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 
 @app.route('/events', methods=['GET'])
