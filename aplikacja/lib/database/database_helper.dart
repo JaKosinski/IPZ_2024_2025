@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:mysql1/mysql1.dart';
 
 class DatabaseHelper {
-  static const String link = 'http://127.0.0.1:5000';
+  static const String link = 'http://192.168.0.122:5000';
   // static const String host = 'localhost';
   // static const int port = 3306;
   // static const String user = 'root';
