@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import '../database/database_helper.dart'; // Baza danych
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/event.dart';
 import '../widgets/event_type_grid.dart';
 import 'dart:io';
+// Dodaj import dla kodowania Base64
+// Import dla obsługi plików
 
 class CreateEventPage extends StatefulWidget {
   final Function(Event) onEventCreated;
 
-  const CreateEventPage({Key? key, required this.onEventCreated}) : super(key: key);
+  const CreateEventPage({super.key, required this.onEventCreated});
 
   @override
   _CreateEventPageState createState() => _CreateEventPageState();
@@ -48,42 +51,55 @@ class _CreateEventPageState extends State<CreateEventPage> {
       print("Błąd podczas zapisu obrazu: $e");
       return null;
     }
+    return null;
   }
 
-  void _submitEvent() {
+  Future<void> _submitEvent() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final maxParticipants = _maxParticipantsController.text.isEmpty
-            ? -1
-            : int.parse(_maxParticipantsController.text);
+        // tworzymy mapę z danymi wydarzenia
+        final eventData = {
+          'id': DateTime.now().millisecondsSinceEpoch.toString(),
+          'name': _nameController.text,
+          'location': _locationController.text,
+          'type': _selectedEventType ?? 'Brak typu', // upewniamy się, że typ jest ustawiony
+          'start_date': _selectedDate.toIso8601String(), // formatujemy datę do ISO 8601
+          'max_participants': _maxParticipantsController.text.isEmpty
+              ? -1
+              : int.parse(_maxParticipantsController.text),
+          'registered_participants': 0,
+          'image': _imagePath ?? 'assets/placeholder.jpg',
+        };
 
-        final newEvent = Event(
-          // nie wiem jak porządnie dać id, więc będę je tworzył na podstawie czasu
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          name: _nameController.text,
-          location: _locationController.text,
-          type: 'no_type',
-          startDate: _selectedDate,
-          maxParticipants: int.parse(_maxParticipantsController.text),
-          registeredParticipants: 0,
-          imagePath: _imagePath ?? 'assets/placeholder.jpg',
+        // zapisujemy dane do bazy
+        await DatabaseHelper.addEvent(eventData);
+
+        // wyświetlamy komunikat o powodzeniu
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Wydarzenie dodane pomyślnie!')),
         );
 
-        widget.onEventCreated(newEvent);
-        Navigator.pop(context);
+        // czyścimy formularz
+        _nameController.clear();
+        _locationController.clear();
+        _maxParticipantsController.clear();
+        setState(() {
+          _imagePath = 'assets/placeholder.jpg'; // resetujemy zdjęcie
+          _selectedEventType = null; // resetujemy typ wydarzenia
+        });
       } catch (e) {
-        print("Error przy tworzeniu wydarzenia: $e");
+        print("Error przy dodawaniu wydarzenia: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Błąd dodawania wydarzenia: $e')),
+        );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Niepoprawny formularz'),
-          duration: const Duration(seconds: 5),
+          duration: Duration(seconds: 5),
         ),
       );
-      _nameController.clear();
-      _locationController.clear();
-      _maxParticipantsController.clear();
     }
   }
 

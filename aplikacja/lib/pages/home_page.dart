@@ -1,25 +1,56 @@
 import 'package:Hive/widgets/event_type_grid.dart';
 import 'package:Hive/pages/event_page.dart';
 import 'package:flutter/material.dart';
+import '../database/database_helper.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart';
 import '../pages/filtered_page.dart';
 import '../pages/new_event_page.dart';
+import '../pages/profile_page.dart';
+
 
 
 class HomePage extends StatefulWidget {
   final List<Event> events;
 
 
-  const HomePage({Key? key, required this.events}) : super(key: key);
+  const HomePage({super.key, required this.events});
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  List<Event> _events = [];
   int _selectedFromBottomBar = 0;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllEvents(); // Wywołanie funkcji pobierającej dane
+  }
+
+  // Pobieranie wydarzeń z bazy
+  Future<void> _fetchAllEvents() async {
+    try {
+      final eventsData = await DatabaseHelper.getAllEvents();
+      setState(() {
+        _events = eventsData.map((eventData) => Event(
+          id: eventData['id'] as String,
+          name: eventData['name'] as String,
+          location: eventData['location'] as String,
+          type: eventData['type'] as String,
+          startDate: DateTime.parse(eventData['start_date'] as String),
+          maxParticipants: eventData['max_participants'] as int,
+          registeredParticipants: eventData['registered_participants'] as int,
+          imagePath: eventData['image'] as String,
+        )).toList();
+      });
+    } catch (e) {
+      print('Błąd podczas pobierania danych wydarzeń: $e');
+    }
+  }
 
   /// Funkcja wyszukuje eventy ze słowem kluczowym w nazwie/lokalizacji i otweira filtered page ze znalezionymi wynikami
   /// args:
@@ -83,7 +114,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => FilteredPage(filteredEvents: filteredEvents))
+          builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (Event ) {  },)) //dodane onUpdate?!
     );
   }
 
@@ -98,10 +129,11 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => FilteredPage(filteredEvents: filteredEvents),
+          builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (Event ) {  },), //dodane onUpdate?!
       ),
     );
   }
+  
 
   /// Otwieranie okna dialogowego z wyszukiwaniem
   void _showSearchDialog({bool onlyLocation = false}) {
@@ -132,6 +164,7 @@ class _HomePageState extends State<HomePage> {
               },
               child: const Icon(Icons.search),
             )
+            
           ],
         );
       }
@@ -172,7 +205,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     const Text(
                       'Filtruj po:',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight:  FontWeight.bold,
                       ),
                     ),
@@ -217,6 +250,15 @@ class _HomePageState extends State<HomePage> {
               },
           );
           break;
+          case 3:
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ProfilePage(),
+    ),
+  );
+  break;
+
       }
     });
   }
@@ -257,13 +299,13 @@ class _HomePageState extends State<HomePage> {
         // powiem Wam szczerze, że nie wiem co robi połowa z tych właściwości, ale buja z nimi
         elevation: 0,
         enableFeedback: false,
-        backgroundColor: Colors.black54,
+         backgroundColor: Colors.black54, // Ustawienie szarego tła
         currentIndex: _selectedFromBottomBar,
         onTap: _onBarTapped,
         showUnselectedLabels: false,
         showSelectedLabels: false,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white,
+        selectedItemColor: const Color.fromARGB(255, 0, 0, 0),
+        unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
         items: const [
           BottomNavigationBarItem(  // 0
             icon: Icon(Icons.search),
@@ -276,7 +318,11 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.filter_alt_outlined),
             label: 'filtruj',
-          )
+          ),
+          BottomNavigationBarItem(  // 3
+          icon: Icon(Icons.person),
+          label: 'profil',
+        ),
         ],
       ),
     );

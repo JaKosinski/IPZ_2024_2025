@@ -62,7 +62,7 @@ class EventCard extends StatelessWidget {
               Text(
                 dateDiffrence <= 0 ?
                     'Dzisiaj  |  ${event.location}'
-                    : 'Za ${dateDiffrence} dni  |  ${event.location}',
+                    : 'Za $dateDiffrence dni  |  ${event.location}',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.white70,
