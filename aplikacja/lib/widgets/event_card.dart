@@ -8,7 +8,7 @@ class EventCard extends StatelessWidget {
   final Function(Event) onUpdate; //metoda do aktualizacji strony
   final Function(Event) onDelete;
 
-  EventCard({
+  EventCard( {
     super.key, required this.event, required this.onUpdate, required this.onDelete,
   }) : dateDiffrence = -DateTime.now()
           .difference(DateTime(event.startDate.year, event.startDate.month, event.startDate.day))

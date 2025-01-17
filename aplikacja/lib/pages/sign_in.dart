@@ -10,7 +10,7 @@ import 'password_change_page.dart';
 class SignInPage extends StatefulWidget {
   final List<Event> events;
 
-  const SignInPage({Key? key, required this.events}) : super(key: key);
+  const SignInPage(userData, {Key? key, required this.events}) : super(key: key);
 
   @override
   State<SignInPage> createState() => _SignInPageState();

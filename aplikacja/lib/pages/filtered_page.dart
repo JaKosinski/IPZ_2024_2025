@@ -1,7 +1,9 @@
+import 'package:Hive/pages/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import '../models/event.dart';
 import '../widgets/event_card.dart'; // jeśli używasz EventCard
+import '../models/user.dart';
 
 class FilteredPage extends StatelessWidget {
   final List<Event> filteredEvents;
@@ -9,6 +11,7 @@ class FilteredPage extends StatelessWidget {
   final Function(Event)?  onDelete;
 
   const FilteredPage({Key? key, required this.filteredEvents, this.onUpdate,  this.onDelete}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
