@@ -1,13 +1,17 @@
 import smtplib
 from email.mime.text import MIMEText
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import mysql.connector
 import secrets
 from dotenv import load_dotenv
 import os
+import socket
 
 load_dotenv()
+
+hostname = socket.gethostname()
+local_ip = socket.gethostbyname(hostname)
 
 app = Flask(__name__)
 CORS(app)
@@ -21,8 +25,8 @@ mydb = mysql.connector.connect(
     auth_plugin="mysql_native_password"
 )
 
-MAIL_USERNAME = "ipezet2025@gmail.com"
-MAIL_PASSWORD = "gpky wyzr vkef wzid"
+MAIL_USERNAME =  os.getenv("MAIL_USERNAME")
+MAIL_PASSWORD =  os.getenv("MAIL_PASSWORD")
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -45,7 +49,7 @@ def register():
         mydb.commit()
 
         # Wysyłanie e-maila weryfikacyjnego
-        verification_link = f"http://localhost:5000/verify_email?token={verification_token}"
+        verification_link = f"http://{local_ip}:5000/verify_email?token={verification_token}"
         msg = MIMEText(f"Kliknij poniższy link, aby zweryfikować swój adres e-mail:\n{verification_link}")
         msg['Subject'] = "Weryfikacja adresu e-mail"
         msg['From'] = MAIL_USERNAME
@@ -88,7 +92,7 @@ def verify_email():
         cursor.execute(update_sql, (user[0],))
         mydb.commit()
 
-        return jsonify({'message': 'E-mail został zweryfikowany pomyślnie'}), 200
+        return render_template('verified.html'), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
