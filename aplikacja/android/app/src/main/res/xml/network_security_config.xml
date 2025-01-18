@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
+<<<<<<< Updated upstream
         <domain includeSubdomains="true">192.168.208.229</domain> </domain-config>
+=======
+        <domain includeSubdomains="true">192.168.56.1</domain> </domain-config>
+>>>>>>> Stashed changes
 </network-security-config>
