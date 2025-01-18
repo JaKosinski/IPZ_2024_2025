@@ -8,11 +8,8 @@ import '../pages/filtered_page.dart';
 import '../pages/new_event_page.dart';
 import '../pages/profile_page.dart';
 
-
-
 class HomePage extends StatefulWidget {
   final List<Event> events;
-
 
   const HomePage({super.key, required this.events});
 
@@ -36,16 +33,19 @@ class _HomePageState extends State<HomePage> {
     try {
       final eventsData = await DatabaseHelper.getAllEvents();
       setState(() {
-        _events = eventsData.map((eventData) => Event(
-          id: eventData['id'] as String,
-          name: eventData['name'] as String,
-          location: eventData['location'] as String,
-          type: eventData['type'] as String,
-          startDate: DateTime.parse(eventData['start_date'] as String),
-          maxParticipants: eventData['max_participants'] as int,
-          registeredParticipants: eventData['registered_participants'] as int,
-          imagePath: eventData['image'] as String,
-        )).toList();
+        _events = eventsData
+            .map((eventData) => Event(
+                  id: eventData['id'] as String,
+                  name: eventData['name'] as String,
+                  location: eventData['location'] as String,
+                  type: eventData['type'] as String,
+                  startDate: DateTime.parse(eventData['start_date'] as String),
+                  maxParticipants: eventData['max_participants'] as int,
+                  registeredParticipants:
+                      eventData['registered_participants'] as int,
+                  imagePath: eventData['image'] as String,
+                ))
+            .toList();
       });
     } catch (e) {
       print('Błąd podczas pobierania danych wydarzeń: $e');
@@ -86,8 +86,8 @@ class _HomePageState extends State<HomePage> {
     // Filtracja wydarzeń
     final filteredEvents = widget.events
         .where((event) =>
-    event.name.toLowerCase().contains(query.toLowerCase()) ||
-        event.location.toLowerCase().contains(query.toLowerCase()))
+            event.name.toLowerCase().contains(query.toLowerCase()) ||
+            event.location.toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     if (filteredEvents.isEmpty) {
@@ -122,8 +122,8 @@ class _HomePageState extends State<HomePage> {
           filteredEvents: filteredEvents,
           onUpdate: (updatedEvent) {
             setState(() {
-              final index =
-              widget.events.indexWhere((event) => event.id == updatedEvent.id);
+              final index = widget.events
+                  .indexWhere((event) => event.id == updatedEvent.id);
               if (index != -1) {
                 widget.events[index] = updatedEvent;
               }
@@ -134,73 +134,76 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
-
   void _filterEventsByType(String typeFilter) {
     final filteredEvents = widget.events
         .where((event) =>
-          event.type.toLowerCase().contains(typeFilter.toLowerCase()))
+            event.type.toLowerCase().contains(typeFilter.toLowerCase()))
         .toList();
 
     Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (Event ) {  },)) //dodane onUpdate?!
-    );
+        context,
+        MaterialPageRoute(
+            builder: (context) => FilteredPage(
+                  filteredEvents: filteredEvents,
+                  onUpdate: (Event) {},
+                )) //dodane onUpdate?!
+        );
   }
 
   void _filterEventsByDate(DateTime dateFilter) {
     final filteredEvents = widget.events
         .where((event) =>
-          event.startDate.year == dateFilter.year &&
-          event.startDate.month == dateFilter.month &&
-          event.startDate.day == dateFilter.day)
+            event.startDate.year == dateFilter.year &&
+            event.startDate.month == dateFilter.month &&
+            event.startDate.day == dateFilter.day)
         .toList();
 
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (Event ) {  },), //dodane onUpdate?!
+        builder: (context) => FilteredPage(
+          filteredEvents: filteredEvents,
+          onUpdate: (Event) {},
+        ), //dodane onUpdate?!
       ),
     );
   }
-  
 
   /// Otwieranie okna dialogowego z wyszukiwaniem
   void _showSearchDialog({bool onlyLocation = false}) {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Wyszukiwanie wydarzeń'),
-          content: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: onlyLocation ? 'Wprowadź lokalizację' : 'Wprowadź nazwę lub lokalizację',
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Wyszukiwanie wydarzeń'),
+            content: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: onlyLocation
+                    ? 'Wprowadź lokalizację'
+                    : 'Wprowadź nazwę lub lokalizację',
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _searchController.clear();
+                  },
+                  child: const Icon(Icons.cancel)),
+              TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _searchController.clear();
+                  print(
+                      'Debug: Wartość w polu wyszukiwania: ${_searchController.text}'); // Debugowanie
+                  _filterEventsByQuery(_searchController.text);
+                  _searchController.clear(); // Wyczyść pole
                 },
-                child: const Icon(Icons.cancel)
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                print('Debug: Wartość w polu wyszukiwania: ${_searchController.text}'); // Debugowanie
-                _filterEventsByQuery(_searchController.text);
-                _searchController.clear(); // Wyczyść pole
-              },
-              child: const Icon(Icons.search),
-            ),
-            
-          ],
-        );
-      }
-    );
+                child: const Icon(Icons.search),
+              ),
+            ],
+          );
+        });
   }
 
   /// Obsługa NavigationBara na dole ekranu
@@ -209,7 +212,7 @@ class _HomePageState extends State<HomePage> {
   void _onBarTapped(int index) {
     setState(() {
       _selectedFromBottomBar = index;
-      switch(_selectedFromBottomBar){
+      switch (_selectedFromBottomBar) {
         case 0:
           _showSearchDialog();
           break;
@@ -217,80 +220,71 @@ class _HomePageState extends State<HomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CreateEventPage(
-                onEventCreated: (newEvent) {
-                  setState(() {
-                    widget.events.add(newEvent);
-                    // _filteredEvents = widget.events;
-                  });
-                }
-              ),
+              builder: (context) => CreateEventPage(onEventCreated: (newEvent) {
+                setState(() {
+                  widget.events.add(newEvent);
+                  // _filteredEvents = widget.events;
+                });
+              }),
             ),
           );
           break;
         case 2:
           showModalBottomSheet(
-              context: context,
-              builder: (context) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Filtruj po:',
-                      style: TextStyle(
-                        fontWeight:  FontWeight.bold,
-                      ),
-                    ),
-                    ListTile(
-                      title: const Text('Typ wydarzenia'),
-                      onTap: () async {
-                        Navigator.pop(context);
-                        showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return Column(mainAxisSize: MainAxisSize.min, children: [
+                const Text(
+                  'Filtruj po:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                ListTile(
+                    title: const Text('Typ wydarzenia'),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      showModalBottomSheet(
                           context: context,
                           builder: (BuildContext context) {
                             return EventTypeGrid(
-                              onEventTypeSelected: (String typeFilter) {
-                                _filterEventsByType(typeFilter);
-                              });
+                                onEventTypeSelected: (String typeFilter) {
+                              _filterEventsByType(typeFilter);
+                            });
                           });
+                    }),
+                ListTile(
+                    title: const Text('Data'),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2100),
+                      );
+                      if (pickedDate != null) {
+                        _filterEventsByDate(pickedDate);
                       }
-                    ),
-                    ListTile(
-                      title: const Text('Data'),
-                      onTap: () async {
-                        Navigator.pop(context);
-                        final pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime(2100),
-                        );
-                        if (pickedDate != null) {
-                          _filterEventsByDate(pickedDate);
-                        }
-                      }
-                    ),
-                    ListTile(
-                      title: const Text('Lokalizacja'),
-                      onTap: () async {
-                        Navigator.pop(context);
-                        _showSearchDialog(onlyLocation: true);
-                      }
-                    )
-                  ]
-                );
-              },
+                    }),
+                ListTile(
+                    title: const Text('Lokalizacja'),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      _showSearchDialog(onlyLocation: true);
+                    })
+              ]);
+            },
           );
           break;
-          case 3:
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ProfilePage(),
-    ),
-  );
-  break;
-
+        case 3:
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfilePage(userId: '14'),
+            ),
+          );
+          break;
       }
     });
   }
@@ -309,21 +303,23 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               //przekazujemy onUpdate do aktualizacji
               Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EventPage(event: widget.events[index], onUpdate: (updatedEvent) {setState((){widget.events[index] = updatedEvent;});})
-                )
-                );
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EventPage(
+                          event: widget.events[index],
+                          onUpdate: (updatedEvent) {
+                            setState(() {
+                              widget.events[index] = updatedEvent;
+                            });
+                          })));
             },
             child: EventCard(
-              event: widget.events[index],
-              onUpdate: (updatedEvent)
-              {
-                setState(() {
-                  widget.events[index] = updatedEvent;
-                });
-              }
-              ),
+                event: widget.events[index],
+                onUpdate: (updatedEvent) {
+                  setState(() {
+                    widget.events[index] = updatedEvent;
+                  });
+                }),
           );
         },
       ),
@@ -331,7 +327,7 @@ class _HomePageState extends State<HomePage> {
         // powiem Wam szczerze, że nie wiem co robi połowa z tych właściwości, ale buja z nimi
         elevation: 0,
         enableFeedback: false,
-         backgroundColor: Colors.black54, // Ustawienie szarego tła
+        backgroundColor: Colors.black54, // Ustawienie szarego tła
         currentIndex: _selectedFromBottomBar,
         onTap: _onBarTapped,
         showUnselectedLabels: false,
@@ -339,11 +335,13 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: const Color.fromARGB(255, 0, 0, 0),
         unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
         items: const [
-          BottomNavigationBarItem(  // 0
+          BottomNavigationBarItem(
+            // 0
             icon: Icon(Icons.search),
             label: 'search',
           ),
-          BottomNavigationBarItem(  // 1
+          BottomNavigationBarItem(
+            // 1
             icon: Icon(Icons.add),
             label: 'dołącz',
           ),
@@ -351,10 +349,11 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.filter_alt_outlined),
             label: 'filtruj',
           ),
-          BottomNavigationBarItem(  // 3
-          icon: Icon(Icons.person),
-          label: 'profil',
-        ),
+          BottomNavigationBarItem(
+            // 3
+            icon: Icon(Icons.person),
+            label: 'profil',
+          ),
         ],
       ),
     );

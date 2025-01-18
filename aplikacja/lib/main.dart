@@ -103,7 +103,7 @@ class MyApp extends StatelessWidget {
         '/sign_in': (context) => SignInPage(events: testEvents),
         '/register': (context) => RegisterPage(),
         '/home': (context) => HomePage(events: testEvents),
-        '/account': (context) => ProfilePage(),
+        '/account': (context) => ProfilePage(userId: '14'),
         '/settings': (context) =>
             SettingsPage(userId: '14'), // Przekazanie userId
         '/change_password': (context) => PasswordChangePage(),
