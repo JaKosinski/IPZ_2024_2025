@@ -56,18 +56,16 @@ class _HomePageState extends State<HomePage> {
   /// args:
   ///   String query: hasło kluczowe do wyszukania
   void _filterEventsByQuery(String query) {
-    final filteredEvents = widget.events
-      .where((event) =>
-        event.name.toLowerCase().contains(query.toLowerCase()) ||
-        event.location.toLowerCase().contains(query.toLowerCase()))
-      .toList();
+    query = query.trim(); // Usuń zbędne spacje
+    print('Debug: Wartość query po trim = "$query"'); // Debugowanie
 
-    if(query.isEmpty) {
+    if (query.isEmpty) {
+      print('Debug: Pole wyszukiwania jest puste.'); // Debugowanie
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text(
+            title: const Text(
               'Pole wyszukania nie może być puste.',
               textAlign: TextAlign.center,
             ),
@@ -76,34 +74,67 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Icon(
-                  Icons.cancel,
-                  color: Colors.red,
-                ),
-              )
+                child: const Icon(Icons.cancel, color: Colors.red),
+              ),
             ],
           );
-        }
+        },
       );
-      _searchController.clear();
       return;
     }
 
+    // Filtracja wydarzeń
+    final filteredEvents = widget.events
+        .where((event) =>
+    event.name.toLowerCase().contains(query.toLowerCase()) ||
+        event.location.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    if (filteredEvents.isEmpty) {
+      print('Debug: Brak wyników wyszukiwania dla "$query"'); // Debugowanie
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text(
+              'Nie znaleziono żadnych wydarzeń.',
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Icon(Icons.cancel, color: Colors.red),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    print('Debug: Liczba znalezionych wydarzeń = ${filteredEvents.length}');
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => FilteredPage(filteredEvents: filteredEvents, onUpdate: (updatedEvent)
-        {
-          setState(() {
-            final index = widget.events.indexWhere((event) => event.id == updatedEvent.id);
-            if(index != -1)
-            {
-              widget.events[index] = updatedEvent;
-            }
-          });
-        },))
+        builder: (context) => FilteredPage(
+          filteredEvents: filteredEvents,
+          onUpdate: (updatedEvent) {
+            setState(() {
+              final index =
+              widget.events.indexWhere((event) => event.id == updatedEvent.id);
+              if (index != -1) {
+                widget.events[index] = updatedEvent;
+              }
+            });
+          },
+        ),
+      ),
     );
   }
+
+
 
   void _filterEventsByType(String typeFilter) {
     final filteredEvents = widget.events
@@ -159,11 +190,12 @@ class _HomePageState extends State<HomePage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _searchController.clear();
+                print('Debug: Wartość w polu wyszukiwania: ${_searchController.text}'); // Debugowanie
                 _filterEventsByQuery(_searchController.text);
+                _searchController.clear(); // Wyczyść pole
               },
               child: const Icon(Icons.search),
-            )
+            ),
             
           ],
         );
