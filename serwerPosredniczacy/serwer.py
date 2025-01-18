@@ -1,17 +1,32 @@
 import smtplib
 from email.mime.text import MIMEText
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, send_from_directory,render_template
 from flask_cors import CORS
 import mysql.connector
 import secrets
 from dotenv import load_dotenv
 import os
+from datetime import datetime
+import base64
 import socket
 
 load_dotenv()
 
 hostname = socket.gethostname()
 local_ip = socket.gethostbyname(hostname)
+
+def get_local_ip():
+    try:
+        # Tworzymy połączenie z adresem zewnętrznym bez rzeczywistego wysyłania danych
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))  # "8.8.8.8" to publiczny serwer Google DNS
+            local_ip = s.getsockname()[0]  # Pobieramy adres IP przypisany do aktywnego interfejsu
+        return local_ip
+    except Exception as e:
+        print(f"Błąd: {e}")
+        return None
+
+
 
 app = Flask(__name__)
 CORS(app)
@@ -25,8 +40,8 @@ mydb = mysql.connector.connect(
     auth_plugin="mysql_native_password"
 )
 
-MAIL_USERNAME =  os.getenv("MAIL_USERNAME")
-MAIL_PASSWORD =  os.getenv("MAIL_PASSWORD")
+MAIL_USERNAME = os.getenv("MAIL_DEFAULT_SENDER")
+MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -49,7 +64,7 @@ def register():
         mydb.commit()
 
         # Wysyłanie e-maila weryfikacyjnego
-        verification_link = f"http://{local_ip}:5000/verify_email?token={verification_token}"
+        verification_link = f"http://{get_local_ip()}:5000/verify_email?token={verification_token}"
         msg = MIMEText(f"Kliknij poniższy link, aby zweryfikować swój adres e-mail:\n{verification_link}")
         msg['Subject'] = "Weryfikacja adresu e-mail"
         msg['From'] = MAIL_USERNAME
@@ -112,14 +127,19 @@ def login():
         if user:
             if user['is_verified'] == 0:
                 return jsonify({'message': 'Adres e-mail nie został zweryfikowany'}), 403
-            # Generowanie tokenu dla zalogowanego użytkownika
-            token = secrets.token_urlsafe(32)
-            update_sql = "UPDATE users SET token = %s WHERE email = %s"
-            update_val = (token, user['email'])
-            cursor.execute(update_sql, update_val)
-            mydb.commit()
 
-            # Zwracamy token w odpowiedzi
+            # Sprawdzanie, czy istnieje już token
+            token = user.get('token')
+            if not token:
+                # Generowanie nowego tokenu, jeśli nie istnieje
+                token = secrets.token_urlsafe(32)
+                update_sql = "UPDATE users SET token = %s WHERE email = %s"
+                cursor.execute(update_sql, (token, email))
+                mydb.commit()
+                print(f"Generated new token for user: {token}")
+            else:
+                print(f"Existing token found for user: {token}")
+
             return jsonify({'message': 'Zalogowano pomyślnie', 'user': user, 'token': token}), 200
         else:
             return jsonify({'message': 'Nieprawidłowy email lub hasło'}), 401
@@ -127,34 +147,97 @@ def login():
         print(e)
         return jsonify({'error': str(e)}), 500
 
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    authorization_header = request.headers.get('Authorization')
+    if not authorization_header or not authorization_header.startswith('Bearer '):
+        return jsonify({'message': 'Brak lub niepoprawny token'}), 401
+
+    token = authorization_header.split(' ')[1]
+    cursor = mydb.cursor()
+    sql = "UPDATE users SET token = NULL WHERE token = %s"
+    cursor.execute(sql, (token,))
+    mydb.commit()
+
+    return jsonify({'message': 'Wylogowano pomyślnie'}), 200
+
+
 @app.route('/verify_token', methods=['GET'])
 def verify_token():
-    token = request.headers.get('Authorization')
-    if token:
-        token = token.split(" ")[1]  # Usuń prefix "Bearer "
+    authorization_header = request.headers.get('Authorization')
+    if not authorization_header or not authorization_header.startswith('Bearer '):
+        return jsonify({'message': 'Brak lub niepoprawny token'}), 401
 
-        cursor = mydb.cursor(dictionary=True)
-        sql = "SELECT * FROM users WHERE token = %s"
-        val = (token,)
-        cursor.execute(sql, val)
-        user = cursor.fetchone()
+    token = authorization_header.split(' ')[1]  # Usuń prefix "Bearer "
 
-        if user:
-            # Token jest ważny
-            return jsonify({'message': 'Token jest ważny'}), 200
-        else:
-            # Token jest nieważny
-            return jsonify({'message': 'Token jest nieważny'}), 401
+    cursor = mydb.cursor(dictionary=True)
+    sql = "SELECT * FROM users WHERE token = %s"
+    val = (token,)
+    cursor.execute(sql, val)
+    user = cursor.fetchone()
+
+    if user:
+        # Token jest ważny
+        return jsonify({'message': 'Token jest ważny'}), 200
     else:
-        return jsonify({'message': 'Brak tokenu'}), 401
+        # Token jest nieważny
+        return jsonify({'message': 'Token jest nieważny/brak tokenu'}), 401
 
+# ------------------- ZAPISYWANIE OBRAZU NA SERWER -------------------
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({'error': 'Brak pliku w żądaniu'}), 400
+
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'Nie wybrano pliku'}), 400
+
+    # Zapisz plik w folderze 'uploads/'
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+    file.save(file_path)
+
+    return jsonify({'message': 'Plik zapisany', 'file_path': file_path}), 200
+
+
+
+@app.route('/uploads/<filename>')
+def serve_image(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+# ------------------ WYSWIETLANIE WYDARZENIA Z BAZY -------------------
+@app.route('/events', methods=['GET'])
+def get_events():
+    try:
+        cursor = mydb.cursor(dictionary=True)
+        sql = "SELECT * FROM events"
+        cursor.execute(sql)
+        events = cursor.fetchall()
+
+        # Konwersja pól binarnych (bytes) na Base64
+        for event in events:
+            if isinstance(event['image'], bytes):
+                event['image'] = base64.b64encode(event['image']).decode('utf-8')
+
+            # Konwersja daty na string
+            if isinstance(event['start_date'], datetime):
+                event['start_date'] = event['start_date'].strftime('%Y-%m-%d %H:%M:%S')
+
+        return jsonify(events), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+ # ------------------ DODAWANIE WYDARZENIA DO BAZY -------------------
 @app.route('/events', methods=['POST'])
 def add_event():
     try:
         data = request.get_json()
         cursor = mydb.cursor()
         sql = """
-        INSERT INTO Events (id, name, location, type, start_date, max_participants, registered_participants, image)
+        INSERT INTO events (id, name, location, type, start_date, max_participants, registered_participants, image)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         val = (
@@ -198,37 +281,6 @@ def update_event(event_id):
         return jsonify({'message': 'Wydarzenie zaktualizowane pomyślnie'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-@app.route('/update_user/<int:user_id>', methods=['PUT'])
-def update_user(user_id):
-    data = request.json
-    update_fields = []
-    print(f"Odebrano żądanie PUT dla user_id: {user_id}")
-    print(f"Dane do aktualizacji: {data}")
-    for key, value in data.items():
-        if key == 'firstName':
-            key = 'imie'
-        elif key == 'lastName':
-            key = 'nazwisko'
-        elif key == 'nickname':
-            key = 'nickName'
-
-        update_fields.append(f"{key} = %s")
-
-    sql_query = f"UPDATE users SET {', '.join(update_fields)} WHERE id = %s"
-    values = list(data.values()) + [user_id]
-
-    try:
-        cursor = mydb.cursor()
-        cursor.execute(sql_query, values)
-        mydb.commit()
-        cursor.close()
-        return jsonify({'message': 'Dane użytkownika zaktualizowane pomyślnie'}), 200
-    except mysql.connector.Error as err:
-        return jsonify({'message': f'Błąd bazy danych: {err}'}), 500
-
-
-
 
 @app.route('/events/<event_id>', methods=['DELETE'])
 def delete_event(event_id):
