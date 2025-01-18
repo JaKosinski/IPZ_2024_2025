@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:mysql1/mysql1.dart';
 
 class DatabaseHelper {
-  static const String link = 'http://192.168.0.16:5000';
+  static const String link = 'http://192.168.208.229:5000';
   // static const String host = 'localhost';
   // static const int port = 3306;
   // static const String user = 'root';
@@ -211,4 +211,42 @@ class DatabaseHelper {
       throw Exception('Błąd serwera: ${response.statusCode}');
     }
   }
+
+  //Dołączanie do wydarzenia
+  static Future<void> joinEvent(String eventId, String userId) async {
+  final url = Uri.parse('$link/events/$eventId/join');
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'user_id': userId}),
+  );
+
+  if (response.statusCode == 200) {
+    print('Dołączono do wydarzenia');
+  } else {
+    final error = jsonDecode(response.body)['error'];
+    throw Exception(error);
+  }
 }
+
+//opuszczanie wydarzenia
+
+static Future<void> leaveEvent(String eventId, String userId) async {
+  final url = Uri.parse('$link/events/$eventId/leave');
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'user_id': userId}),
+  );
+
+  if (response.statusCode == 200) {
+    print('Opuszczono wydarzenie');
+  } else {
+    final error = jsonDecode(response.body)['error'];
+    throw Exception(error);
+  }
+}
+
+
+}
+
