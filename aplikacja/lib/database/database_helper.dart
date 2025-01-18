@@ -21,12 +21,14 @@ class DatabaseHelper {
   //   );
   //   return await MySqlConnection.connect(settings);
   // }
-  static Future<void> addUser(String nickname, String email, String password) async {
+  static Future<void> addUser(
+      String nickname, String email, String password) async {
     final url = Uri.parse('$link/register');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'nickname': nickname,'email': email, 'password': password}),
+      body: jsonEncode(
+          {'nickname': nickname, 'email': email, 'password': password}),
     );
 
     if (response.statusCode == 201) {
@@ -37,7 +39,8 @@ class DatabaseHelper {
     }
   }
 
-  static Future<Map<String, dynamic>?> getUser(String email, String password) async {
+  static Future<Map<String, dynamic>?> getUser(
+      String email, String password) async {
     final url = Uri.parse('$link/login');
     final response = await http.post(
       url,
@@ -54,8 +57,27 @@ class DatabaseHelper {
     }
   }
 
+  static Future<void> updateUser(
+      String userId, Map<String, String> updatedFields) async {
+    print('URL: $link/update_user/$userId');
+    print('Dane do aktualizacji: ${jsonEncode(updatedFields)}');
+    final url = Uri.parse('$link/update_user/$userId');
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(updatedFields), // Dane do aktualizacji
+    );
+
+    if (response.statusCode != 200) {
+      final error = jsonDecode(response.body)['message'] ??
+          'Błąd podczas aktualizacji danych użytkownika';
+      throw Exception(error);
+    }
+  }
+
   static Future<void> verifyToken(String token) async {
-    final url = Uri.parse('$link/verify_token'); // Zakładając, że endpoint to '/verify_token'
+    final url = Uri.parse(
+        '$link/verify_token'); // Zakładając, że endpoint to '/verify_token'
     final response = await http.get(
       url,
       headers: {'Authorization': 'Bearer $token'},
@@ -67,9 +89,11 @@ class DatabaseHelper {
     } else {
       // Token jest nieważny
       print('Token jest nieważny');
-      throw Exception('Token jest nieważny'); // Możesz obsłużyć błąd w inny sposób
+      throw Exception(
+          'Token jest nieważny'); // Możesz obsłużyć błąd w inny sposób
     }
   }
+
   // Dodawanie wydarzeń
   static Future<void> addEvent(Map<String, dynamic> eventData) async {
     final url = Uri.parse('$link/events');
@@ -86,8 +110,10 @@ class DatabaseHelper {
       throw Exception(error);
     }
   }
+
   // Aktualizowanie wydarzeń
-  static Future<void> updateEvent(String id, Map<String, dynamic> eventData) async {
+  static Future<void> updateEvent(
+      String id, Map<String, dynamic> eventData) async {
     final url = Uri.parse('$link/events/$id');
     final response = await http.put(
       url,
@@ -102,6 +128,7 @@ class DatabaseHelper {
       throw Exception(error);
     }
   }
+
   // Usuwanie wydarzeń
   static Future<void> deleteEvent(String id) async {
     final url = Uri.parse('$link/events/$id');
@@ -130,7 +157,8 @@ class DatabaseHelper {
   }
 
   // Pobieranie wszystkich wydarzeń
-  static Future<List<Map<String, dynamic>>> getAllEvents([String? userId]) async {
+  static Future<List<Map<String, dynamic>>> getAllEvents(
+      [String? userId]) async {
     var url = Uri.parse('$link/events');
 
     if (userId != null) {
@@ -149,41 +177,76 @@ class DatabaseHelper {
   }
 
   static Future<void> deleteAccount(String token) async {
-  final url = Uri.parse('$link/delete_account');
-  final response = await http.delete(
+    final url = Uri.parse('$link/delete_account');
+    final response = await http.delete(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      print('Konto zostało usunięte');
+    } else {
+      final error = jsonDecode(response.body)['error'];
+      throw Exception(error);
+    }
+  }
+
+  static Future<bool> verifyPassword(String token, String password) async {
+    final url = Uri.parse('$link/verify_password');
+    print(token);
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode({'password': password}),
+    );
+
+    if (response.statusCode == 200) {
+      return true; // Hasło jest poprawne
+    } else if (response.statusCode == 401) {
+      return false; // Nieprawidłowe hasło
+    } else {
+      throw Exception('Błąd serwera: ${response.statusCode}');
+    }
+  }
+
+  //Dołączanie do wydarzenia
+  static Future<void> joinEvent(String eventId, String userId) async {
+  final url = Uri.parse('$link/events/$eventId/join');
+  final response = await http.post(
     url,
-    headers: {'Authorization': 'Bearer $token'},
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'user_id': userId}),
   );
 
   if (response.statusCode == 200) {
-    print('Konto zostało usunięte');
+    print('Dołączono do wydarzenia');
   } else {
     final error = jsonDecode(response.body)['error'];
     throw Exception(error);
   }
 }
 
-static Future<bool> verifyPassword(String token, String password) async {
-  final url = Uri.parse('$link/verify_password');
-  print(token);
+//opuszczanie wydarzenia
+
+static Future<void> leaveEvent(String eventId, String userId) async {
+  final url = Uri.parse('$link/events/$eventId/leave');
   final response = await http.post(
     url,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    },
-    body: json.encode({'password': password}),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'user_id': userId}),
   );
 
   if (response.statusCode == 200) {
-    return true; // Hasło jest poprawne
-  } else if (response.statusCode == 401) {
-    return false; // Nieprawidłowe hasło
+    print('Opuszczono wydarzenie');
   } else {
-    throw Exception('Błąd serwera: ${response.statusCode}');
+    final error = jsonDecode(response.body)['error'];
+    throw Exception(error);
   }
 }
 
 
-
 }
+

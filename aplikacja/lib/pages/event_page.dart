@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/event.dart';
 import '../styles/gradients.dart';
 import '../pages/edit_event_page.dart';
+import '../database/database_helper.dart';
 
 // to kiedyś trzeba będzie zmienić na stateful być może jak będziemy chcieli robić dołączanie już
 // ja chcę zrobić już wygląd, później nie będzie dużo zmian
@@ -30,6 +31,46 @@ class _EventPageState extends State<EventPage>{
   {
     setState(() {_currentEvent = updatedEvent;});
   }
+
+  void _joinEvent() async {
+  try {
+    await DatabaseHelper.joinEvent(_currentEvent.id, 'user_id'); // Zmień 'user_id' na właściwy identyfikator
+    setState(() {
+      _currentEvent.registeredParticipants++;
+    });
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Błąd: $e')),
+    );
+  }
+}
+
+void _leaveEvent() async {
+  try {
+    await DatabaseHelper.leaveEvent(_currentEvent.id, 'user_id'); // Zmień 'user_id' na właściwy identyfikator
+    setState(() {
+      _currentEvent.registeredParticipants--;
+    });
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Błąd: $e')),
+    );
+  }
+}
+
+void _deleteEvent() async {
+  try {
+    await DatabaseHelper.deleteEvent(_currentEvent.id);
+    Navigator.pop(context); // Powrót do poprzedniej strony
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Błąd: $e')),
+    );
+  }
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +152,7 @@ class _EventPageState extends State<EventPage>{
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ElevatedButton.icon(onPressed: null,//_joinEvent,
+                ElevatedButton.icon(onPressed: _joinEvent,
                 icon: const Icon(Icons.add_circle),
                 label: const Text('Dołącz do wydarzenia'),
                 style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity,48),
@@ -122,7 +163,7 @@ class _EventPageState extends State<EventPage>{
                 ),
                 const SizedBox(height: 10),
                 if(_currentEvent.registeredParticipants > 0)
-                  ElevatedButton.icon(onPressed: null/*_leaveEvent*/, icon: const Icon(Icons.remove_circle),
+                  ElevatedButton.icon(onPressed: _leaveEvent, icon: const Icon(Icons.remove_circle),
                   label: const Text('Wypisz się z wydarzenia'),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity,48),
@@ -148,7 +189,7 @@ class _EventPageState extends State<EventPage>{
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
-                    onPressed: null,//_deleteEvent,
+                    onPressed: _deleteEvent,
                     icon: const Icon(Icons.delete),
                     label: const Text('Usuń wydarzenie'),
                     style: ElevatedButton.styleFrom(

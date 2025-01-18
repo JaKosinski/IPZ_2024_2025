@@ -1,6 +1,6 @@
 import smtplib
 from email.mime.text import MIMEText
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory,render_template
 from flask_cors import CORS
 import mysql.connector
 import secrets
@@ -107,7 +107,7 @@ def verify_email():
         cursor.execute(update_sql, (user[0],))
         mydb.commit()
 
-        return jsonify({'message': 'E-mail został zweryfikowany pomyślnie'}), 200
+        return render_template('verified.html'), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -377,6 +377,67 @@ def get_all_events():
         return jsonify(events), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+#========================DOŁĄCZANIE DO WYDARZENIA==============================    
+@app.route('/events/<event_id>/join', methods=['POST'])
+def join_event(event_id):
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+
+        cursor = mydb.cursor()
+        sql_check = "SELECT registered_participants, max_participants FROM events WHERE id = %s"
+        cursor.execute(sql_check, (event_id,))
+        event = cursor.fetchone()
+
+        if not event:
+            return jsonify({'error': 'Wydarzenie nie istnieje'}), 404
+
+        registered, max_participants = event
+        if max_participants != -1 and registered >= max_participants:
+            return jsonify({'error': 'Brak wolnych miejsc'}), 400
+
+        # Aktualizacja liczby zapisanych uczestników
+        sql_update = "UPDATE events SET registered_participants = registered_participants + 1 WHERE id = %s"
+        cursor.execute(sql_update, (event_id,))
+        mydb.commit()
+
+        return jsonify({'message': 'Dołączono do wydarzenia'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+
+#=======================OPUSZCZANIE WYDARZENIA========================
+@app.route('/events/<event_id>/leave', methods=['POST'])
+def leave_event(event_id):
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+
+        cursor = mydb.cursor()
+        sql_check = "SELECT registered_participants FROM events WHERE id = %s"
+        cursor.execute(sql_check, (event_id,))
+        event = cursor.fetchone()
+
+        if not event:
+            return jsonify({'error': 'Wydarzenie nie istnieje'}), 404
+
+        registered = event[0]
+        if registered <= 0:
+            return jsonify({'error': 'Nie można opuścić wydarzenia, brak zapisanych uczestników'}), 400
+
+        sql_update = "UPDATE events SET registered_participants = registered_participants - 1 WHERE id = %s"
+        cursor.execute(sql_update, (event_id,))
+        mydb.commit()
+
+        return jsonify({'message': 'Opuszczono wydarzenie'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+    
