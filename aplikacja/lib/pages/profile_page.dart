@@ -3,7 +3,7 @@ import 'settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
-//zdjęcie profilowe nazwa usera 
+//zdjęcie profilowe nazwa usera
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class ProfilePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SettingsPage(),
+                    builder: (context) => SettingsPage(userId: '<userId>'),
                   ),
                 );
               },

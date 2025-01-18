@@ -9,10 +9,6 @@ import 'pages/profile_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/password_change_page.dart';
 
-
-
-
-
 List<Event> testEvents = [
   Event(
     id: "0",
@@ -37,7 +33,7 @@ List<Event> testEvents = [
   Event(
     id: "2",
     name: "Przejażdżka z Pudzianem",
-    location:"Szczecin, Jezioro Głębokie",
+    location: "Szczecin, Jezioro Głębokie",
     type: 'Motoryzacyjne',
     startDate: DateTime(2025, 1, 21),
     maxParticipants: 3,
@@ -65,8 +61,6 @@ List<Event> testEvents = [
     imagePath: "assets/pudzian4.jpg",
   )
 ];
-
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -110,10 +104,9 @@ class MyApp extends StatelessWidget {
         '/register': (context) => RegisterPage(),
         '/home': (context) => HomePage(events: testEvents),
         '/account': (context) => ProfilePage(),
-        '/settings': (context) => SettingsPage(),
+        '/settings': (context) =>
+            SettingsPage(userId: '14'), // Przekazanie userId
         '/change_password': (context) => PasswordChangePage(),
-        
-
       },
       //home: SignInPage(events: testEvents),
     );
