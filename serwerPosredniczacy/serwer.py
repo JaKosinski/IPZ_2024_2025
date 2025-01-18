@@ -1,5 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Flask, render_template
 from flask_cors import CORS
+import secrets
+import mysql.connector
 from dotenv import load_dotenv
 import os
 
@@ -11,7 +13,7 @@ CORS(app)
 mydb = mysql.connector.connect(
     host="212.127.78.92",
     user="user",
-    password="password",
+    password="ipz2137",
     database="userDatabase"
 )
 
@@ -35,7 +37,31 @@ def register():
             return jsonify({'error': 'Taki użytkownik już istnieje'}), 409
         else:
             return jsonify({'error': str(err)}), 500
-        
+
+@app.route('/confirmemail', methods=['GET'])
+def confirm_page():
+    return render_template('confirm.html')
+
+@app.route('/confirm', methods=['POST'])
+def confirm_registration():
+    try:
+        data = request.get_json()
+        email = data['email']
+
+        cursor = mydb.cursor()
+        sql = "UPDATE users SET is_verified = 1 WHERE email = %s"
+        val = (email,)
+        cursor.execute(sql, val)
+        mydb.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({'error': 'Użytkownik nie został znaleziony.'}), 404
+
+        return jsonify({'message': 'Rejestracja została potwierdzona.'}), 200
+    except Exception as e:
+        return jsonify({'error': f'Wystąpił błąd: {str(e)}'}), 500
+
+
         
 @app.route('/login', methods=['POST'])
 def login():
