@@ -195,6 +195,37 @@ def update_event(event_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/update_user/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    data = request.json
+    update_fields = []
+    print(f"Odebrano żądanie PUT dla user_id: {user_id}")
+    print(f"Dane do aktualizacji: {data}")
+    for key, value in data.items():
+        if key == 'firstName':
+            key = 'imie'
+        elif key == 'lastName':
+            key = 'nazwisko'
+        elif key == 'nickname':
+            key = 'nickName'
+
+        update_fields.append(f"{key} = %s")
+
+    sql_query = f"UPDATE users SET {', '.join(update_fields)} WHERE id = %s"
+    values = list(data.values()) + [user_id]
+
+    try:
+        cursor = mydb.cursor()
+        cursor.execute(sql_query, values)
+        mydb.commit()
+        cursor.close()
+        return jsonify({'message': 'Dane użytkownika zaktualizowane pomyślnie'}), 200
+    except mysql.connector.Error as err:
+        return jsonify({'message': f'Błąd bazy danych: {err}'}), 500
+
+
+
+
 @app.route('/events/<event_id>', methods=['DELETE'])
 def delete_event(event_id):
     try:
