@@ -1,0 +1,4 @@
+W pliku database_helper zmieniami ip na nasze lokalne - ipconfig - zmienna link
+W aplikacja -> app -> main -> res -> xml -> network_secu... <domain includeSubdomains="true">nasze.lokalne.ip</domain> </domain-config>
+
+Tak tak, dużo roboty, ale póki nie jest na serwerze 'serwer' trzeba ręcznie 

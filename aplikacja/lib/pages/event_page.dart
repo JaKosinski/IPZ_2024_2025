@@ -10,7 +10,7 @@ class EventPage extends StatefulWidget {
   //final Function(Event) onDelete; // Callback do usuwania wydarzenia
   final Function(Event) onUpdate;
 
-  const EventPage({Key? key, required this.event,required this.onUpdate}) : super(key: key);
+  const EventPage({super.key, required this.event,required this.onUpdate});
 
   @override
   _EventPageState createState() => _EventPageState();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../database/database_helper.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -8,36 +9,35 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  // Klucz do zarządzania stanem formularza
   final _formKey = GlobalKey<FormState>();
+  final _userNicknameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  // Kontrolery tekstu dla nicknameu, e-maila i hasła
-  final TextEditingController _nicknameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
 
-  // Funkcja do obsługi rejestracji
-  void _register() {
-  if (_formKey.currentState!.validate()) {
-    // TODO: Sprawdź, czy e-mail i nickname są unikalne w bazie danych
-    print("Rejestracja udana!");
-    print("Nickname: ${_nicknameController.text}");
-    print("E-mail: ${_emailController.text}");
-    print("Hasło: ${_passwordController.text}");
+  Future<void> _register() async {
+    if (_formKey.currentState!.validate()) {
+      final userNickname = _userNicknameController.text;
+      final email = _emailController.text;
+      final password = _passwordController.text;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Rejestracja udana!, teraz możesz zalogować się do konta'))
-    );
+      try {
+        // Dodaj użytkownika do bazy danych
+        await DatabaseHelper.addUser(userNickname, email, password);
 
-    // Wyczyszczenie pól po rejestracji
-    _nicknameController.clear();
-    _emailController.clear();
-    _passwordController.clear();
-  } else {
-    print("Rejestracja nie powiodła się. Popraw dane.");
+        // Wyświetl komunikat o powodzeniu i przejdź do ekranu logowania
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Rejestracja pomyślna!')),
+        );
+        Navigator.pushNamed(context, '/sign_in');
+      } catch (e) {
+        // Wyświetl komunikat o błędzie
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Błąd rejestracji: $e')),
+        );
+      }
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -45,85 +45,57 @@ class _RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(
         title: const Text('Rejestracja'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey, // Powiązanie formularza z kluczem
+      body: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Pole tekstowe dla nickname
+            children: <Widget>[
               TextFormField(
-                controller: _nicknameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nickname',
-                  border: OutlineInputBorder(),
-                ),
+                controller: _userNicknameController,
+                decoration: const InputDecoration(labelText: 'Nick'),
                 validator: (value) {
-                  // Walidacja nickname
                   if (value == null || value.isEmpty) {
-                    return 'Podaj nickname.';
+                    return 'Wprowadź nazwę użytkownika';
                   }
-                  if (value.length < 3) {
-                    return 'Nickname musi mieć co najmniej 3 znaki.';
-                  }
-                  // TODO: Sprawdź, czy nickname jest unikalny w bazie danych
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
-              // Pole tekstowe dla e-maila
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'E-mail',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(labelText: 'Email'),
                 validator: (value) {
-                  // Walidacja e-maila
                   if (value == null || value.isEmpty) {
-                    return 'Podaj e-mail.';
+                    return 'Wprowadź adres email';
                   }
-                  // Sprawdzenie czy e-mail jest poprawny
                   final emailRegex = RegExp(
                       r'^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$');
-                  if (!emailRegex.hasMatch(value)) {
-                    return 'Podaj poprawny e-mail.';
+                  if (!emailRegex.hasMatch(value)/*!value.contains('@')*/) {
+                    return 'Wprowadź poprawny adres email';
                   }
-                  return null; // Poprawny e-mail
+                  return null;
                 },
               ),
-              const SizedBox(height: 20),
-              // Pole tekstowe dla hasła
               TextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Hasło',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true, // Ukrywanie hasła
+                decoration: const InputDecoration(labelText: 'Hasło'),
+                obscureText: true,
                 validator: (value) {
-                  // Walidacja hasła
-                  //sprawdzanie czy haslo jest puste
                   if (value == null || value.isEmpty) {
-                    return 'Podaj hasło.';
+                    return 'Wprowadź hasło';
                   }
-                  //walidacja czy hasło ma Jedną wielką litere,jedną małą litere,
-                  // conajmniej jedną cyfrę, conajmniej jeden znak specjalny i minimum 8 znaków
-                  final passwordRegex = RegExp(
-                  r'^([A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$');
-                  if(!passwordRegex.hasMatch(value)){
-                    return 'Hasło mudi zawierać conajmniej 8 znaków, wielką literę, cyfrę i znak specjalny. ';
+                  if (value.length < 8) {
+                    return 'Hasło musi mieć co najmniej 8 znaków';
                   }
-                  return null; // Poprawne hasło
+                  return null;
                 },
               ),
-              const SizedBox(height: 20),
-              // Przycisk rejestracji
-              ElevatedButton(
-                onPressed: _register, // Wywołanie rejestracji
-                child: const Text('Zarejestruj się'),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: ElevatedButton(
+                  onPressed: _register,
+                  child: const Text('Zarejestruj się'),
+                ),
               ),
             ],
           ),
